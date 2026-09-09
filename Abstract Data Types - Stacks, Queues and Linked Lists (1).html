@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abstract Data Types — Linked Lists, Stacks &amp; Queues</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF1F0;
+  --card:#FFFFFF;
+  --grid:#D8E0DF;
+  --ink:#12262C;
+  --ink2:#41565D;
+  --ink3:#6B7F85;
+  --wire:#1668D8;
+  --wire-soft:#DEEAFB;
+  --live:#D97706;
+  --live-soft:#FDF0DC;
+  --ok:#0F7A5A;
+  --ok-soft:#DDF0E9;
+  --bad:#BC3A2C;
+  --bad-soft:#FAE3E0;
+  --null:#93A5A9;
+  --r:4px;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --ui:"Space Grotesk",system-ui,-apple-system,sans-serif;
+  --serif:"Source Serif 4",Georgia,serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:78px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--serif);font-size:17px;line-height:1.62;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+  -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4,.ui{font-family:var(--ui)}
+code,pre,.mono{font-family:var(--mono)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.col{max-width:70ch}
+main{padding-bottom:120px}
+
+/* ---------- top bar ---------- */
+header.bar{
+  position:sticky;top:0;z-index:60;background:rgba(237,241,240,.93);
+  backdrop-filter:blur(8px);border-bottom:2px solid var(--ink);
+}
+.bar-in{max-width:1180px;margin:0 auto;padding:9px 20px;display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--ui);font-weight:700;font-size:15px;letter-spacing:-.01em;white-space:nowrap}
+.brand span{color:var(--wire)}
+nav.jump{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+nav.jump::-webkit-scrollbar{display:none}
+nav.jump a{
+  font-family:var(--ui);font-size:13px;font-weight:500;text-decoration:none;color:var(--ink2);
+  padding:6px 10px;border-radius:var(--r);white-space:nowrap;
+}
+nav.jump a:hover{background:var(--wire-soft);color:var(--wire)}
+nav.jump a.on{background:var(--ink);color:#fff}
+
+/* ---------- hero ---------- */
+.hero{padding:64px 0 52px;border-bottom:2px solid var(--ink)}
+.hero h1{
+  font-size:clamp(34px,6.2vw,64px);line-height:1.02;margin:0 0 18px;
+  font-weight:700;letter-spacing:-.035em;max-width:16ch;
+}
+.hero p.lede{font-size:clamp(18px,2.4vw,22px);max-width:56ch;margin:0 0 34px;color:var(--ink2)}
+.hero-stage{
+  background:var(--card);border:2px solid var(--ink);border-radius:var(--r);
+  padding:34px 20px;overflow-x:auto;
+}
+.hero-cap{font-family:var(--ui);font-size:13px;color:var(--ink3);margin-top:12px}
+
+/* ---------- sections ---------- */
+section{padding:62px 0 0;scroll-margin-top:78px}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:30px}
+.sec-num{
+  font-family:var(--ui);font-weight:700;font-size:13px;color:#fff;background:var(--ink);
+  padding:3px 9px;border-radius:var(--r);flex:none;position:relative;top:-3px;
+}
+.sec-head h2{font-size:clamp(24px,3.6vw,34px);margin:0;font-weight:700;letter-spacing:-.02em}
+h3{font-size:22px;margin:44px 0 12px;font-weight:600;letter-spacing:-.01em}
+h4{font-size:16px;margin:26px 0 8px;font-weight:600}
+p{margin:0 0 16px}
+.col ul,.col ol{max-width:70ch;padding-left:22px;margin:0 0 18px}
+li{margin-bottom:7px}
+a{color:var(--wire)}
+strong{font-weight:600}
+em.term{font-style:normal;font-weight:600;border-bottom:2px solid var(--wire);cursor:help}
+
+/* ---------- inline code ---------- */
+code{
+  font-size:.87em;background:#fff;border:1px solid var(--grid);
+  padding:1px 5px;border-radius:3px;white-space:nowrap;
+}
+code.ptr{color:var(--wire);border-color:var(--wire-soft);background:var(--wire-soft)}
+
+/* ---------- callouts ---------- */
+.note{
+  border-left:4px solid var(--wire);background:var(--card);padding:16px 20px;
+  margin:24px 0;border-radius:0 var(--r) var(--r) 0;max-width:70ch;
+}
+.note.warn{border-color:var(--bad)}
+.note.win{border-color:var(--ok)}
+.note.analogy{border-color:var(--live);background:var(--live-soft)}
+.note p:last-child{margin-bottom:0}
+.note-t{font-family:var(--ui);font-weight:600;font-size:14px;margin-bottom:6px;display:block}
+.note .note-t{color:var(--wire)}
+.note.warn .note-t{color:var(--bad)}
+.note.win .note-t{color:var(--ok)}
+.note.analogy .note-t{color:#9A5300}
+
+/* ---------- lab panels ---------- */
+.lab{
+  background:var(--card);border:2px solid var(--ink);border-radius:var(--r);
+  margin:34px 0;overflow:hidden;
+}
+.lab-head{
+  background:var(--ink);color:#fff;padding:11px 20px;display:flex;
+  align-items:center;gap:12px;flex-wrap:wrap;
+}
+.lab-head h4{margin:0;font-size:15px;font-weight:600;color:#fff}
+.lab-kind{
+  font-family:var(--ui);font-size:11px;font-weight:700;letter-spacing:.06em;
+  background:var(--wire);padding:2px 7px;border-radius:3px;
+}
+.lab-kind.solo{background:var(--live)}
+.lab-kind.check{background:var(--ok)}
+.lab-body{padding:22px 20px}
+.lab-body>p:first-child{margin-top:0}
+.lab-body p,.lab-body li{font-size:16px}
+.stage{
+  background:var(--paper);border:1px dashed var(--ink3);border-radius:var(--r);
+  padding:26px 16px;margin:16px 0;overflow-x:auto;min-height:120px;
+  display:flex;flex-direction:column;justify-content:center;
+}
+
+/* ---------- buttons ---------- */
+.btn{
+  font-family:var(--ui);font-size:14px;font-weight:600;cursor:pointer;
+  background:var(--ink);color:#fff;border:2px solid var(--ink);
+  padding:8px 15px;border-radius:var(--r);transition:transform .1s,background .15s;
+}
+.btn:hover{background:#000}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--wire-soft);border-color:var(--wire);color:var(--wire)}
+.btn.blue{background:var(--wire);border-color:var(--wire)}
+.btn.blue:hover{background:#0F55B4}
+.btn.sm{font-size:12.5px;padding:5px 10px}
+.btn:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible,.chip:focus-visible{
+  outline:3px solid var(--live);outline-offset:2px;
+}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.row .spacer{flex:1}
+
+/* ---------- the memory diagram engine ---------- */
+.chain{display:flex;align-items:flex-end;gap:0;min-height:104px;padding:4px 2px}
+.slot{display:flex;flex-direction:column;align-items:center;flex:none}
+.tags{min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;padding-bottom:5px}
+.tag{
+  font-family:var(--ui);font-size:11.5px;font-weight:700;color:#fff;background:var(--wire);
+  padding:2px 8px;border-radius:3px;position:relative;white-space:nowrap;
+}
+.tag::after{
+  content:"";position:absolute;left:50%;transform:translateX(-50%);top:100%;
+  border:5px solid transparent;border-top-color:var(--wire);
+}
+.tag.t-temp,.tag.t-current{background:var(--live)}
+.tag.t-temp::after,.tag.t-current::after{border-top-color:var(--live)}
+.tag.t-new,.tag.t-newnode{background:var(--ok)}
+.tag.t-new::after,.tag.t-newnode::after{border-top-color:var(--ok)}
+.tag.t-todelete,.tag.t-cptr{background:var(--bad)}
+.tag.t-todelete::after,.tag.t-cptr::after{border-top-color:var(--bad)}
+.node{
+  display:flex;border:2px solid var(--ink);border-radius:3px;background:#fff;
+  transition:transform .28s cubic-bezier(.2,.9,.3,1.3),opacity .28s,box-shadow .2s;
+}
+.node .cell{
+  min-width:52px;height:50px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-weight:700;font-size:17px;
+}
+.node .cell.data{border-right:2px solid var(--ink);background:#fff}
+.node .cell.next{background:var(--wire-soft);min-width:34px;position:relative}
+.node .cell.next::after{
+  content:"";width:9px;height:9px;border-radius:50%;background:var(--wire);
+}
+.node.hot{box-shadow:0 0 0 4px var(--live-soft);border-color:var(--live)}
+.node.hot .cell.data{border-right-color:var(--live)}
+.node.fresh{animation:pop .34s cubic-bezier(.2,.9,.3,1.4)}
+.node.lost{opacity:.34;filter:grayscale(1)}
+.node.doomed{border-color:var(--bad);box-shadow:0 0 0 4px var(--bad-soft)}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.wire{
+  flex:none;width:44px;height:50px;position:relative;margin-bottom:0;
+  display:flex;align-items:center;
+}
+.wire::before{content:"";height:3px;width:100%;background:var(--wire)}
+.wire::after{
+  content:"";position:absolute;right:0;top:50%;transform:translateY(-50%);
+  border:7px solid transparent;border-left-color:var(--wire);border-right:0;
+}
+.wire.cut::before{background:repeating-linear-gradient(90deg,var(--bad) 0 6px,transparent 6px 12px);}
+.wire.cut::after{border-left-color:var(--bad)}
+.wire.dim::before{background:var(--null)}
+.wire.dim::after{border-left-color:var(--null)}
+.nullbox{
+  font-family:var(--mono);font-size:13px;font-weight:700;color:var(--null);
+  border:2px dashed var(--null);border-radius:3px;padding:14px 10px;height:50px;
+  display:flex;align-items:center;
+}
+.emptylist{font-family:var(--ui);color:var(--ink3);font-size:15px;padding:20px 4px}
+.floater{margin-top:22px;padding-top:18px;border-top:1px dashed var(--ink3)}
+.floater-lab{font-family:var(--ui);font-size:12px;color:var(--ink3);margin-bottom:8px}
+.leakbadge{
+  font-family:var(--ui);font-size:11px;font-weight:700;color:#fff;background:var(--bad);
+  padding:2px 7px;border-radius:3px;margin-top:7px;display:inline-block;
+}
+
+/* ---------- readout / console ---------- */
+.readout{
+  font-family:var(--mono);font-size:13.5px;background:var(--ink);color:#DDE8EA;
+  padding:12px 15px;border-radius:var(--r);margin:14px 0;min-height:46px;
+  white-space:pre-wrap;line-height:1.6;
+}
+.readout .k{color:#7EB8F5}
+.readout .g{color:#6FD3AC}
+.readout .r{color:#F79A8E}
+.readout .y{color:#F5C56B}
+
+/* ---------- code blocks ---------- */
+pre.code{
+  background:var(--ink);color:#E4EDEF;font-size:13.5px;line-height:1.72;
+  padding:16px 18px;border-radius:var(--r);overflow-x:auto;margin:16px 0;
+}
+pre.code .cm{color:#7D959B}
+pre.code .kw{color:#7EB8F5}
+pre.code .fn{color:#F5C56B}
+pre.code .st{color:#6FD3AC}
+pre.code .hl{background:rgba(217,119,6,.28);display:inline-block;width:100%}
+pre.code .ln{color:#4E656B;user-select:none;display:inline-block;width:2.2em}
+
+/* code stepper */
+.stepper pre.code{margin:0}
+.stepper .line{display:block;padding:0 4px;border-radius:2px}
+.stepper .line.on{background:rgba(217,119,6,.3);box-shadow:inset 3px 0 0 var(--live)}
+.stepper .line.done{opacity:.5}
+
+/* ---------- fill in the blank ---------- */
+.fill{
+  background:var(--ink);color:#E4EDEF;font-family:var(--mono);font-size:13.5px;
+  line-height:2.3;padding:16px 18px;border-radius:var(--r);overflow-x:auto;margin:16px 0;
+  white-space:pre-wrap;
+}
+.fill .blank{
+  font-family:var(--mono);font-size:13px;background:#0A181D;color:#fff;
+  border:2px dashed var(--wire);border-radius:3px;padding:3px 6px;width:15ch;
+  text-align:center;
+}
+.fill .blank.good{border:2px solid var(--ok);border-style:solid;color:#6FD3AC}
+.fill .blank.bad{border:2px solid var(--bad);border-style:solid;color:#F79A8E}
+.fill .cm{color:#7D959B}
+.fill .kw{color:#7EB8F5}
+
+/* ---------- drag & drop ordering ---------- */
+.dnd{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px 0}
+@media(max-width:720px){.dnd{grid-template-columns:1fr}}
+.pool,.slots{background:var(--paper);border:1px dashed var(--ink3);border-radius:var(--r);padding:12px;min-height:80px}
+.pane-t{font-family:var(--ui);font-size:12px;font-weight:600;color:var(--ink3);margin-bottom:9px}
+.chip{
+  font-family:var(--mono);font-size:13px;background:#fff;border:2px solid var(--ink);
+  border-radius:3px;padding:8px 10px;margin-bottom:8px;cursor:grab;
+  display:flex;align-items:center;gap:8px;user-select:none;touch-action:none;
+}
+.chip:active{cursor:grabbing}
+.chip.dragging{opacity:.4}
+.chip.floatdrag{position:fixed;z-index:999;pointer-events:none;opacity:.92;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.chip .x{
+  margin-left:auto;font-family:var(--ui);font-weight:700;font-size:14px;color:var(--ink3);
+  cursor:pointer;border:none;background:transparent;padding:0 2px;line-height:1;
+}
+.chip .x:hover{color:var(--bad)}
+.dropslot{
+  border:2px dashed var(--grid);border-radius:3px;min-height:44px;margin-bottom:8px;
+  padding:4px;display:flex;align-items:center;position:relative;
+}
+.dropslot.over{border-color:var(--wire);background:var(--wire-soft)}
+.dropslot .idx{
+  font-family:var(--ui);font-size:11px;font-weight:700;color:var(--ink3);
+  position:absolute;left:-20px;top:12px;
+}
+@media(max-width:720px){.dropslot .idx{left:auto;right:6px;top:2px}}
+.dropslot .chip{margin:0;width:100%}
+.dropslot.right .chip{border-color:var(--ok);background:var(--ok-soft)}
+.dropslot.wrong .chip{border-color:var(--bad);background:var(--bad-soft)}
+
+/* ---------- quiz ---------- */
+.q{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:18px 20px;margin:16px 0}
+.q .qt{font-family:var(--ui);font-weight:600;font-size:16px;margin-bottom:12px}
+.opt{
+  display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border:2px solid var(--grid);
+  border-radius:var(--r);margin-bottom:8px;cursor:pointer;font-size:15.5px;background:#fff;
+}
+.opt:hover{border-color:var(--wire)}
+.opt.picked{border-color:var(--wire);background:var(--wire-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt .mk{font-family:var(--ui);font-weight:700;flex:none;color:var(--ink3)}
+.fb{font-size:15px;padding:11px 14px;border-radius:var(--r);margin-top:10px;display:none}
+.fb.show{display:block}
+.fb.good{background:var(--ok-soft);border-left:4px solid var(--ok)}
+.fb.bad{background:var(--bad-soft);border-left:4px solid var(--bad)}
+
+/* ---------- misc ---------- */
+table.cmp{width:100%;border-collapse:collapse;margin:20px 0;font-size:15px;background:#fff}
+table.cmp th,table.cmp td{border:1px solid var(--grid);padding:10px 12px;text-align:left;vertical-align:top}
+table.cmp th{background:var(--ink);color:#fff;font-family:var(--ui);font-size:13px;font-weight:600}
+table.cmp td:first-child{font-family:var(--ui);font-weight:600;font-size:14px;width:24%}
+details.rev{border:2px solid var(--grid);border-radius:var(--r);background:#fff;padding:0;margin:14px 0}
+details.rev summary{
+  font-family:var(--ui);font-weight:600;font-size:14px;padding:11px 16px;cursor:pointer;
+  list-style:none;display:flex;align-items:center;gap:8px;
+}
+details.rev summary::-webkit-details-marker{display:none}
+details.rev summary::before{content:"▸";color:var(--wire);font-size:13px}
+details.rev[open] summary::before{content:"▾"}
+details.rev .rev-body{padding:0 16px 14px;font-size:15.5px}
+details.rev .rev-body pre.code{font-size:12.8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.mini{font-size:14.5px;color:var(--ink2)}
+.slab{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:18px 20px}
+.slab h4{margin-top:0}
+.kbd{font-family:var(--mono);font-size:12px;background:#fff;border:1px solid var(--ink3);border-bottom-width:2px;border-radius:3px;padding:1px 5px}
+
+/* stack + queue visuals */
+.stackbox{display:flex;flex-direction:column-reverse;gap:0;border:2px solid var(--ink);border-top:none;width:150px;background:#fff}
+.stackwrap{display:flex;gap:26px;align-items:flex-end;justify-content:center;flex-wrap:wrap}
+.scell{
+  height:44px;border-top:2px solid var(--ink);display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-weight:700;font-size:16px;position:relative;
+}
+.scell.filled{background:var(--wire-soft)}
+.scell.empty{color:var(--grid)}
+.scell.top-marker::after{
+  content:"◀ top";position:absolute;left:100%;margin-left:9px;font-family:var(--ui);
+  font-size:12px;font-weight:700;color:var(--live);white-space:nowrap;
+}
+.scell.pushing{animation:drop .3s ease-out}
+@keyframes drop{from{transform:translateY(-30px);opacity:0}to{transform:none;opacity:1}}
+.sidx{font-family:var(--mono);font-size:11px;color:var(--ink3);height:44px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px}
+.sidxcol{display:flex;flex-direction:column-reverse}
+
+.qtrack{display:flex;border:2px solid var(--ink);background:#fff;width:max-content;margin:0 auto}
+.qcell{
+  width:56px;height:52px;border-right:2px solid var(--grid);display:flex;align-items:center;
+  justify-content:center;font-family:var(--mono);font-weight:700;font-size:16px;
+}
+.qcell:last-child{border-right:none}
+.qcell.filled{background:var(--wire-soft)}
+.qcell.dead{background:repeating-linear-gradient(45deg,#F2F2F2 0 6px,#E6E6E6 6px 12px);color:var(--null)}
+.qmarks{display:flex;width:max-content;margin:0 auto 4px}
+.qmark{width:56px;text-align:center;font-family:var(--ui);font-size:11.5px;font-weight:700;height:20px}
+.qmark.f{color:var(--ok)}
+.qmark.r{color:var(--bad)}
+.qidx{display:flex;width:max-content;margin:4px auto 0}
+.qidx span{width:56px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--ink3)}
+
+/* progress */
+.prog{height:4px;background:var(--grid);position:sticky;top:52px;z-index:59}
+.prog i{display:block;height:100%;background:var(--wire);width:0}
+footer{border-top:2px solid var(--ink);padding:30px 0 60px;font-size:14.5px;color:var(--ink2)}
+.tick{color:var(--ok);font-weight:700}
+
+/* ---- readability fixes ---- */
+.opt code{white-space:normal}
+.q .qt pre.code{white-space:pre;font-size:12.5px}
+.slab code,.note code{white-space:normal}
+@media(max-width:620px){
+  body{font-size:16px}
+  table.cmp{font-size:13.5px}
+  table.cmp th,table.cmp td{padding:7px 8px}
+  .lab-body{padding:16px 13px}
+  .stage{padding:20px 10px}
+  .wrap{padding:0 15px}
+  .hero{padding:40px 0 34px}
+  section{padding:46px 0 0}
+  .fill{font-size:12px}
+  .fill .blank{width:12ch}
+  pre.code{font-size:12px;padding:13px 12px}
+  .readout{font-size:12.5px}
+}
+footer{margin-top:40px}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <div class="brand">ADTs<span>-&gt;</span>next</div>
+    <nav class="jump" id="jump">
+      <a href="#adt">What's an ADT</a>
+      <a href="#stack">Stacks</a>
+      <a href="#stackuse">Stacks at work</a>
+      <a href="#queue">Queues</a>
+      <a href="#circular">Circular queues</a>
+      <a href="#wall">The size wall</a>
+      <a href="#ll">Linked lists</a>
+      <a href="#front">Insert at front</a>
+      <a href="#walk">Traversal</a>
+      <a href="#del">Deleting</a>
+      <a href="#practice">Practice</a>
+      <a href="#capstone">Putting it together</a>
+      <a href="#quiz">Self-check</a>
+    </nav>
+  </div>
+</header>
+<div class="prog"><i id="progbar"></i></div>
+<main>
+
+<!-- ============ HERO ============ -->
+<div class="wrap hero">
+  <h1>An abstract data type is defined by its operations, not by its storage.</h1>
+  <p class="lede">A stack promises you <code>push</code> and <code>pop</code>. A queue promises <code>enqueue</code> and <code>dequeue</code>. Neither promises an array. That distinction is the whole chapter &mdash; and by the last section you will take one of these apart and rebuild it out of something completely different, without changing a line of the code that uses it.</p>
+  <div class="hero-stage">
+    <div id="heroChain"></div>
+  </div>
+  <p class="hero-cap">You'll build up to that diagram. By the end you'll be able to redraw it from memory and explain every arrow in it.</p>
+</div>
+
+<!-- ============ 0. ADT ============ -->
+<section id="adt"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">0</span><h2>What an abstract data type actually is</h2></div>
+  <div class="col">
+    <p>Written out properly: an <em class="term">abstract data type</em> is a data structure described by the <strong>operations you may perform on it</strong> and the rules those operations follow &mdash; with no mention of how the data is actually stored.</p>
+    <p>The word doing the work is <strong>abstract</strong>. You are told what the thing does. You are deliberately not told how.</p>
+
+    <div class="note analogy"><span class="note-t">Think of an ATM</span>
+      <p>You know the operations: <code>deposit</code>, <code>withdraw</code>, <code>checkBalance</code>. You have no idea whether the money is in a drawer, a safe, or a vault downstairs &mdash; and you don't need to. The <strong>operations</strong> are the contract. The <strong>storage</strong> is somebody else's problem.</p>
+      <p>That's an ADT. A stack promises you <code>push</code> and <code>pop</code>. Whether it's built from an array or from linked nodes is an implementation detail you can swap out without changing a single line of the code that uses it. You'll do exactly that swap at the end of this guide.</p>
+    </div>
+
+    <p>Three ADTs, in the order that makes them easiest to learn:</p>
+    <ol>
+      <li><strong>Stack</strong> &mdash; add and remove at one end only. One marker to track.</li>
+      <li><strong>Queue</strong> &mdash; add at one end, remove from the other. Two markers.</li>
+      <li><strong>Linked list</strong> &mdash; add and remove anywhere, any size. Every node tracks its own neighbour.</li>
+    </ol>
+    <p>Each one is the previous one with a restriction lifted. Stacks and queues are about <strong>discipline</strong> &mdash; giving up freedom on purpose so the structure makes you a promise. Linked lists are about <strong>arrows</strong>, and they are where most people get stuck.</p>
+    <p>So take them in that order. Done this way, the linked list arrives as the solution to a problem you have already run into yourself, rather than as a wall of pointer syntax on the first day.</p>
+  </div>
+</div></section>
+
+<!-- ============ 1. STACKS ============ -->
+<section id="stack"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">1</span><h2>Stacks</h2></div>
+  <div class="col">
+    <p>A stack is a list where you deliberately throw away most of your freedom: you may only add and remove <strong>at one end</strong>. That end is called <code>top</code>.</p>
+
+    <div class="note analogy"><span class="note-t">The plate pile in the canteen</span>
+      <p>Clean plates go on the pile. You take the plate off the top. The plate at the bottom has been there since Monday and nobody has touched it.</p>
+      <p>That's <strong>LIFO</strong> &mdash; last in, first out. The last plate on is the first plate off, and you physically cannot reach the third plate down without lifting the two above it.</p>
+    </div>
+
+    <p>Only four operations matter, and the whole structure is one array plus one integer:</p>
+    <table class="cmp">
+      <tr><th>Operation</th><th>What it does</th><th>What it touches</th></tr>
+      <tr><td>push(x)</td><td>Put x on the top</td><td><code>top</code> moves up, then <code>stack[top] = x</code></td></tr>
+      <tr><td>pop()</td><td>Take the top item off and return it</td><td>Read <code>stack[top]</code>, then <code>top</code> moves down</td></tr>
+      <tr><td>peek()</td><td>Look at the top item without removing it</td><td>Nothing &mdash; <code>top</code> does not move</td></tr>
+      <tr><td>isEmpty()</td><td>Is there anything in there?</td><td>Nothing &mdash; just tests <code>top == -1</code></td></tr>
+    </table>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 1</span><h4>Push, pop, overflow, underflow</h4></div>
+      <div class="lab-body">
+        <p>This stack holds 5 items. <code>top</code> starts at <strong>&minus;1</strong>, which is the C way of saying "empty" &mdash; there is no index &minus;1, so the value is safely meaningless until something is pushed.</p>
+        <div class="row">
+          <input id="stkVal" class="blank" style="background:#fff;color:var(--ink);border-color:var(--ink);width:8ch;font-size:14px;padding:7px" placeholder="value" inputmode="numeric">
+          <button class="btn blue sm" id="stkPush">push(value)</button>
+          <button class="btn sm" id="stkPop" style="background:var(--bad);border-color:var(--bad)">pop()</button>
+          <button class="btn ghost sm" id="stkPeek">peek()</button>
+          <span class="spacer"></span>
+          <button class="btn ghost sm" id="stkReset">Reset</button>
+        </div>
+        <div class="stage"><div class="stackwrap"><div id="stkStage"></div></div></div>
+        <div class="readout" id="stkOut">top = -1 &nbsp;&nbsp;(stack is empty)</div>
+        <div class="note"><span class="note-t">Two states to trigger on purpose</span>
+          <p>Push six values &mdash; the sixth is refused. That's <strong>overflow</strong>, caught by <code>if (top == MAX-1)</code>. Now pop an empty stack: that's <strong>underflow</strong>, caught by <code>if (top == -1)</code>. Both guards belong in every stack you write, and forgetting either one is how a program crashes on the day it matters.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>The code, and why <code>top</code> moves when it does</h3>
+    <div class="grid2">
+      <div>
+<pre class="code"><span class="cm">/* the entire data structure */</span>
+<span class="cm">#define MAX 5</span>
+<span class="kw">int</span> stack[MAX];
+<span class="kw">int</span> top = -1;          <span class="cm">// empty</span>
+
+<span class="kw">void</span> <span class="fn">push</span>(<span class="kw">int</span> item)
+{
+    <span class="kw">if</span> (top == MAX-1) {
+        <span class="fn">printf</span>(<span class="st">"Overflow\n"</span>);
+        <span class="kw">return</span>;
+    }
+    ++top;                 <span class="cm">// move up first</span>
+    stack[top] = item;     <span class="cm">// then write</span>
+}</pre>
+        <p class="mini"><code>top</code> always points at the <strong>last item written</strong>, never at the next free slot. So on the way in you move up <em>before</em> writing. The shorthand <code>stack[++top] = item;</code> means exactly the same thing in one line.</p>
+      </div>
+      <div>
+<pre class="code"><span class="kw">int</span> <span class="fn">pop</span>()
+{
+    <span class="kw">if</span> (top == -1) {
+        <span class="fn">printf</span>(<span class="st">"Underflow\n"</span>);
+        <span class="kw">return</span> -1;
+    }
+    <span class="kw">int</span> item = stack[top];  <span class="cm">// read first</span>
+    --top;                  <span class="cm">// then move down</span>
+    <span class="kw">return</span> item;
+}
+
+<span class="kw">int</span> <span class="fn">peek</span>()  { <span class="kw">return</span> stack[top]; }
+<span class="kw">int</span> <span class="fn">isEmpty</span>(){ <span class="kw">return</span> top == -1; }</pre>
+        <p class="mini">Notice pop doesn't erase anything. The old value still sits in the array &mdash; it is simply above <code>top</code> now, so it is unreachable and the next push overwrites it. In a stack, "deleting" and "making unreachable" are the same act.</p>
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind check">TRACE</span><h4>Predict the contents</h4></div>
+      <div class="lab-body">
+        <p>Start empty. Work through these calls on paper, writing the array after each one, before you check.</p>
+<pre class="code" style="margin-top:0">push(4); push(7); pop(); push(9); push(2); pop(); pop(); push(5);</pre>
+        <div class="row">
+          <span class="mini" style="margin-right:6px">Contents, bottom to top:</span>
+          <input id="trcIn" class="blank" style="background:#fff;color:var(--ink);border-color:var(--ink);width:16ch;font-size:14px;padding:7px" placeholder="e.g. 1, 2, 3">
+          <button class="btn blue sm" id="trcCheck">Check</button>
+        </div>
+        <div class="readout" id="trcOut">Type the values left to right, bottom of the stack first.</div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ STACKS AT WORK ============ -->
+<section id="stackuse"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">2</span><h2>Stacks at work</h2></div>
+  <div class="col">
+    <p>Stacks are not an academic curiosity. You have used four of them today without noticing.</p>
+  </div>
+  <div class="grid2" style="margin-top:22px">
+    <div class="slab"><h4>Undo</h4><p class="mini">Every edit gets pushed. <span class="kbd">Ctrl+Z</span> pops the most recent one. That's why undo always reverses your <em>latest</em> action, never an older one &mdash; the structure literally cannot reach further down.</p></div>
+    <div class="slab"><h4>The browser back button</h4><p class="mini">Each page you visit is pushed. Back pops. Open a new link from the middle of your history and the forward stack is thrown away &mdash; because a stack only has one reachable end.</p></div>
+    <div class="slab"><h4>The call stack</h4><p class="mini">When <code>main</code> calls <code>push</code>, the return address is pushed onto a stack. When <code>push</code> finishes, it pops. Infinite recursion pushes forever &mdash; and the error message you get is literally "stack overflow".</p></div>
+    <div class="slab"><h4>Matching brackets</h4><p class="mini">Every compiler and code editor checks your <code>{ }</code> with a stack. Open bracket: push. Close bracket: pop and check it matches. It is a five-line algorithm and it is used billions of times a day.</p></div>
+  </div>
+  <div class="col">
+    <h3>Application 1 &mdash; the bracket checker</h3>
+    <p>This is the algorithm your compiler runs on your C file before it tells you off. It is worth understanding completely, because it shows <em>why</em> LIFO is the right shape: the bracket you must close next is always the most recently opened one.</p>
+<pre class="code"><span class="kw">int</span> <span class="fn">balanced</span>(<span class="kw">char</span> s[])
+{
+    top = -1;                                   <span class="cm">// start with an empty stack</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = 0; s[i] != <span class="st">'\0'</span>; i++)
+    {
+        <span class="kw">char</span> c = s[i];
+
+        <span class="kw">if</span> (c == <span class="st">'('</span> || c == <span class="st">'['</span> || c == <span class="st">'{'</span>)
+            <span class="fn">push</span>(c);                          <span class="cm">// remember what we opened</span>
+
+        <span class="kw">else if</span> (c == <span class="st">')'</span> || c == <span class="st">']'</span> || c == <span class="st">'}'</span>)
+        {
+            <span class="kw">if</span> (<span class="fn">isEmpty</span>()) <span class="kw">return</span> 0;        <span class="cm">// a closer with nothing open</span>
+            <span class="kw">char</span> open = <span class="fn">pop</span>();
+            <span class="kw">if</span> (!<span class="fn">matches</span>(open, c)) <span class="kw">return</span> 0;  <span class="cm">// wrong kind of closer</span>
+        }
+    }
+    <span class="kw">return</span> <span class="fn">isEmpty</span>();                       <span class="cm">// leftovers = something never closed</span>
+}</pre>
+    <p>Three ways it can fail, and each maps to one line above: a closer with an empty stack, a closer that doesn't match what popped out, or a non-empty stack at the end.</p>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 2</span><h4>Run the bracket checker character by character</h4></div>
+      <div class="lab-body">
+        <p>Type an expression and step through it. Try the presets &mdash; especially the two that fail for different reasons.</p>
+        <div class="row">
+          <input id="brIn" class="blank" style="background:#fff;color:var(--ink);border-color:var(--ink);width:24ch;font-size:14px;padding:7px" value="{a[b(c)]}">
+          <button class="btn blue sm" id="brLoad">Load</button>
+          <button class="btn ghost sm" data-br="(a+[b*c])">(a+[b*c])</button>
+          <button class="btn ghost sm" data-br="{a[b)c]}">{a[b)c]}</button>
+          <button class="btn ghost sm" data-br="((a+b)">((a+b)</button>
+        </div>
+        <div class="stage" style="min-height:170px">
+          <div id="brChars" style="font-family:var(--mono);font-size:22px;letter-spacing:3px;margin-bottom:20px;text-align:center"></div>
+          <div class="stackwrap"><div id="brStack"></div></div>
+        </div>
+        <div class="row">
+          <button class="btn blue" id="brStep">Next character</button>
+          <button class="btn ghost sm" id="brReset">Restart</button>
+        </div>
+        <div class="readout" id="brOut">Press Next character to begin.</div>
+      </div>
+    </div>
+
+    <h3>Application 2 &mdash; reversing anything</h3>
+    <p>A stack reverses whatever you feed it, for free, just by pushing everything in and popping everything out. No loop counters, no swapping, no working backwards through indices.</p>
+<pre class="code"><span class="kw">void</span> <span class="fn">reverse</span>(<span class="kw">char</span> s[])
+{
+    top = -1;
+    <span class="kw">int</span> n = <span class="fn">strlen</span>(s);
+
+    <span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; n; i++) <span class="fn">push</span>(s[i]);   <span class="cm">// last char ends up on top</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; n; i++) s[i] = <span class="fn">pop</span>(); <span class="cm">// so it comes out first</span>
+}</pre>
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 3</span><h4>Watch a word reverse itself</h4></div>
+      <div class="lab-body">
+        <div class="row">
+          <input id="revIn" class="blank" style="background:#fff;color:var(--ink);border-color:var(--ink);width:16ch;font-size:14px;padding:7px" value="BASSETERRE" maxlength="12">
+          <button class="btn blue sm" id="revRun">Push all, then pop all</button>
+          <button class="btn ghost sm" id="revReset">Reset</button>
+        </div>
+        <div class="stage" style="min-height:190px"><div class="stackwrap"><div id="revStack"></div></div></div>
+        <div class="readout" id="revOut">Type a word and run it.</div>
+        <p class="mini">Same idea checks a <strong>palindrome</strong>: reverse the string with a stack, then compare it to the original. If they match, it reads the same both ways.</p>
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind solo">LAB 4</span><h4>Order the push algorithm</h4></div>
+      <div class="lab-body">
+        <p>Drag the four steps of <code>push()</code> into the correct order. One pair is a trap &mdash; think about what <code>top</code> is pointing at.</p>
+        <div class="dnd" data-order-game="pushOrder">
+          <div>
+            <div class="pane-t">Steps</div>
+            <div class="pool" data-pool>
+              <div class="chip" draggable="true" data-id="c">stack[top] = item;</div>
+              <div class="chip" draggable="true" data-id="a">Check if top == MAX-1</div>
+              <div class="chip" draggable="true" data-id="d">Report success</div>
+              <div class="chip" draggable="true" data-id="b">If full, print Overflow and return</div>
+              <div class="chip" draggable="true" data-id="e">++top;</div>
+            </div>
+          </div>
+          <div>
+            <div class="pane-t">Your order</div>
+            <div class="slots">
+              <div class="dropslot" data-slot="0"><span class="idx">1</span></div>
+              <div class="dropslot" data-slot="1"><span class="idx">2</span></div>
+              <div class="dropslot" data-slot="2"><span class="idx">3</span></div>
+              <div class="dropslot" data-slot="3"><span class="idx">4</span></div>
+              <div class="dropslot" data-slot="4"><span class="idx">5</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="row"><button class="btn blue" id="pshCheck">Check order</button><button class="btn ghost sm" id="pshReset">Reset</button></div>
+        <div class="readout" id="pshOut">Place all five steps, then check.</div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ QUEUES ============ -->
+<section id="queue"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">3</span><h2>Queues</h2></div>
+  <div class="col">
+    <p>Same idea as a stack, one change: you add at one end and remove from the <strong>other</strong>. That single change flips the behaviour completely, and costs you a second marker.</p>
+
+    <div class="note analogy"><span class="note-t">The line at the bank</span>
+      <p>You join at the back. You are served from the front. Whoever has waited longest goes first, and anyone who joins at the front is going to hear about it.</p>
+      <p>That's <strong>FIFO</strong> &mdash; first in, first out. A queue needs <code>front</code> (who is being served) and <code>rear</code> (where the next person joins). A stack needed one marker because both ends were the same end.</p>
+    </div>
+
+    <table class="cmp">
+      <tr><th></th><th>Stack</th><th>Queue</th></tr>
+      <tr><td>Add</td><td><code>push()</code> at top</td><td><code>enqueue()</code> at rear</td></tr>
+      <tr><td>Remove</td><td><code>pop()</code> from top</td><td><code>dequeue()</code> from front</td></tr>
+      <tr><td>Order out</td><td>LIFO &mdash; newest first</td><td>FIFO &mdash; oldest first</td></tr>
+      <tr><td>Markers</td><td>one (<code>top</code>)</td><td>two (<code>front</code>, <code>rear</code>)</td></tr>
+      <tr><td>Fair?</td><td>No &mdash; the bottom item may wait forever</td><td>Yes &mdash; everyone is served in arrival order</td></tr>
+      <tr><td>Used for</td><td>Undo, back button, recursion, brackets</td><td>Print jobs, keyboard input, ticket lines, task scheduling</td></tr>
+    </table>
+
+    <p>That "fair?" row is the reason both structures exist. When order of arrival is a promise you're making to someone &mdash; a printer, a customer, a download &mdash; you need a queue. When you want the most recent thing first, you need a stack.</p>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 5</span><h4>Enqueue, dequeue, and a problem nobody warns you about</h4></div>
+      <div class="lab-body">
+        <p>Add a few values, then remove a few. Keep going and watch the left-hand side of the array.</p>
+        <div class="row">
+          <input id="qVal" class="blank" style="background:#fff;color:var(--ink);border-color:var(--ink);width:8ch;font-size:14px;padding:7px" placeholder="value" inputmode="numeric">
+          <button class="btn blue sm" id="qAdd">enqueue(value)</button>
+          <button class="btn sm" id="qDel" style="background:var(--bad);border-color:var(--bad)">dequeue()</button>
+          <span class="spacer"></span>
+          <button class="btn ghost sm" id="qReset">Reset</button>
+        </div>
+        <div class="stage"><div id="qStage"></div></div>
+        <div class="readout" id="qOut">front = -1, rear = -1 &nbsp;&nbsp;(queue is empty)</div>
+      </div>
+    </div>
+
+    <h3>The code</h3>
+    <div class="grid2">
+      <div>
+<pre class="code"><span class="cm">#define MAX 8</span>
+<span class="kw">int</span> queue[MAX];
+<span class="kw">int</span> front = -1, rear = -1;
+
+<span class="kw">void</span> <span class="fn">enqueue</span>(<span class="kw">int</span> data)
+{
+    <span class="kw">if</span> (rear == MAX-1) {
+        <span class="fn">printf</span>(<span class="st">"Queue full\n"</span>);
+        <span class="kw">return</span>;
+    }
+    <span class="kw">if</span> (front == -1) front = 0;  <span class="cm">// first arrival</span>
+    rear++;
+    queue[rear] = data;
+}</pre>
+      </div>
+      <div>
+<pre class="code"><span class="kw">int</span> <span class="fn">dequeue</span>()
+{
+    <span class="kw">if</span> (front == -1 || front &gt; rear) {
+        <span class="fn">printf</span>(<span class="st">"Queue empty\n"</span>);
+        <span class="kw">return</span> -1;
+    }
+    <span class="kw">int</span> data = queue[front];
+    front++;
+    <span class="kw">if</span> (front &gt; rear)            <span class="cm">// served the last one</span>
+        front = rear = -1;       <span class="cm">// reset to empty</span>
+    <span class="kw">return</span> data;
+}</pre>
+      </div>
+    </div>
+    <p class="mini">That reset in <code>dequeue</code> matters. Without it, an emptied queue leaves <code>front</code> and <code>rear</code> stranded near the end of the array, and the next <code>enqueue</code> reports "full" on a completely empty queue.</p>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind solo">LAB 6</span><h4>Order the enqueue algorithm</h4></div>
+      <div class="lab-body">
+        <p>Five steps. The trap is the same shape as the one in <code>push()</code> &mdash; think about what <code>rear</code> points at.</p>
+        <div class="dnd" data-order-game="enqOrder">
+          <div>
+            <div class="pane-t">Steps</div>
+            <div class="pool" data-pool>
+              <div class="chip" draggable="true" data-id="c">queue[rear] = data;</div>
+              <div class="chip" draggable="true" data-id="a">Check if the queue is full</div>
+              <div class="chip" draggable="true" data-id="e">Report success</div>
+              <div class="chip" draggable="true" data-id="b">If full, print Overflow and return</div>
+              <div class="chip" draggable="true" data-id="d">rear = rear + 1;</div>
+            </div>
+          </div>
+          <div>
+            <div class="pane-t">Your order</div>
+            <div class="slots">
+              <div class="dropslot" data-slot="0"><span class="idx">1</span></div>
+              <div class="dropslot" data-slot="1"><span class="idx">2</span></div>
+              <div class="dropslot" data-slot="2"><span class="idx">3</span></div>
+              <div class="dropslot" data-slot="3"><span class="idx">4</span></div>
+              <div class="dropslot" data-slot="4"><span class="idx">5</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="row"><button class="btn blue" id="enqCheck">Check order</button><button class="btn ghost sm" id="enqReset">Reset</button></div>
+        <div class="readout" id="enqOut">Place all five steps, then check.</div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ CIRCULAR ============ -->
+<section id="circular"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">4</span><h2>The drift problem, and circular queues</h2></div>
+  <div class="col">
+    <p>You probably saw it in Lab 5. Dequeued cells are dead: <code>front</code> only ever moves right, so slots at the start can never be reused. Eventually <code>rear</code> hits the end of the array and the queue reports "full" while half of it sits empty and wasted.</p>
+
+    <div class="note analogy"><span class="note-t">A queue that eats its own array</span>
+      <p>Imagine a bank line drawn on the floor with chalk. Every time someone is served, the front of the line moves one step forward &mdash; but nobody is allowed to step back into the empty chalk squares behind them. After twenty customers the whole line has drifted out of the building.</p>
+      <p>The fix is to bend the chalk line into a <strong>circle</strong>. Run off the end, come back to the start.</p>
+    </div>
+
+    <p>One operator does it. When a marker would run off the end, wrap it to 0 with the modulo operator:</p>
+<pre class="code">rear  = (rear  + 1) % MAX;    <span class="cm">// 7 -&gt; 0 when MAX is 8</span>
+front = (front + 1) % MAX;</pre>
+    <p>But now a new problem appears. In a circle, <code>front == rear</code> happens when the queue is <strong>full</strong> and also when it is <strong>empty</strong> &mdash; the markers meet either way. The simplest fix is to keep a <code>count</code> of how many items are actually stored:</p>
+
+    <div class="grid2">
+      <div>
+<pre class="code"><span class="kw">int</span> queue[MAX];
+<span class="kw">int</span> front = 0, rear = -1, count = 0;
+
+<span class="kw">void</span> <span class="fn">enqueue</span>(<span class="kw">int</span> data)
+{
+    <span class="kw">if</span> (count == MAX) {
+        <span class="fn">printf</span>(<span class="st">"Queue full\n"</span>);
+        <span class="kw">return</span>;
+    }
+    rear = (rear + 1) % MAX;   <span class="cm">// wrap</span>
+    queue[rear] = data;
+    count++;
+}</pre>
+      </div>
+      <div>
+<pre class="code"><span class="kw">int</span> <span class="fn">dequeue</span>()
+{
+    <span class="kw">if</span> (count == 0) {
+        <span class="fn">printf</span>(<span class="st">"Queue empty\n"</span>);
+        <span class="kw">return</span> -1;
+    }
+    <span class="kw">int</span> data = queue[front];
+    front = (front + 1) % MAX; <span class="cm">// wrap</span>
+    count--;
+    <span class="kw">return</span> data;
+}</pre>
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 7</span><h4>Make the markers wrap around</h4></div>
+      <div class="lab-body">
+        <p>Six slots. Fill it, dequeue three, then enqueue three more and watch <code>rear</code> jump from 5 back to 0 &mdash; reusing space the straight-line version had thrown away.</p>
+        <div class="row">
+          <input id="cqVal" class="blank" style="background:#fff;color:var(--ink);border-color:var(--ink);width:8ch;font-size:14px;padding:7px" placeholder="value" inputmode="numeric">
+          <button class="btn blue sm" id="cqAdd">enqueue(value)</button>
+          <button class="btn sm" id="cqDel" style="background:var(--bad);border-color:var(--bad)">dequeue()</button>
+          <button class="btn ghost sm" id="cqFill">Fill it up</button>
+          <span class="spacer"></span>
+          <button class="btn ghost sm" id="cqReset">Reset</button>
+        </div>
+        <div class="stage"><div id="cqStage"></div></div>
+        <div class="readout" id="cqOut">front = 0, rear = -1, count = 0 &nbsp;&nbsp;(empty)</div>
+      </div>
+    </div>
+
+    <h3>Where circular queues actually run</h3>
+    <div class="grid2">
+      <div class="slab"><h4>Your keyboard</h4><p class="mini">Keystrokes land in a small circular buffer while the program is busy. Type faster than the program reads and the buffer fills &mdash; that's the beep, and the lost characters.</p></div>
+      <div class="slab"><h4>Streaming and playback</h4><p class="mini">Audio and video players keep a circular buffer of decoded frames. The decoder writes at the rear, the speaker reads from the front, round and round, forever, in a fixed amount of memory.</p></div>
+      <div class="slab"><h4>Print spoolers</h4><p class="mini">Jobs queue in arrival order. Fixed memory, no drift, no job skipping the line &mdash; exactly the promise a queue makes.</p></div>
+      <div class="slab"><h4>Round-robin scheduling</h4><p class="mini">An operating system gives each process a slice of CPU time, then sends it to the back of the queue. Circular by nature: the list of processes never ends, it just cycles.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ THE SIZE WALL ============ -->
+<section id="wall"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">5</span><h2>The wall you just hit</h2></div>
+  <div class="col">
+    <p>Go back to Lab 1 and push a sixth value. It is refused. Not because the computer is out of memory &mdash; your machine has gigabytes free &mdash; but because <code>#define MAX 5</code> was decided before the program ever ran.</p>
+    <p>That is the fundamental limit of an array. Its size is fixed at compile time. Which leaves you choosing between two bad options:</p>
+    <ul>
+      <li>Declare it <strong>too small</strong>, and the program fails on a busy day.</li>
+      <li>Declare it <strong>too big</strong>, and you waste memory permanently to handle a case that almost never happens.</li>
+    </ul>
+    <p>There is a second, quieter problem. Inserting at the front of an array means shifting every other element right, one at a time. For 10 items that's nothing. For 10,000 it's 10,000 moves for a single insertion.</p>
+
+    <div class="note"><span class="note-t">So here is the question the next section answers</span>
+      <p>What if we didn't ask for all the memory up front? What if each item were allocated <strong>the moment it was needed</strong>, wherever there happened to be room &mdash; and each one simply remembered where the next one lived?</p>
+      <p>Then the structure grows to exactly the size it needs, whenever it needs to, and inserting at the front means changing two arrows instead of shifting ten thousand values.</p>
+      <p>That is a linked list. Everything in the rest of this guide exists to pay for those two sentences.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ LINKED LISTS ============ -->
+<section id="ll"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">6</span><h2>Linked lists</h2></div>
+  <div class="col">
+    <h3>The scavenger hunt</h3>
+    <p>Forget code for a minute. Picture a scavenger hunt around campus.</p>
+    <p>You're handed a slip of paper that says <strong>"start at the library."</strong> At the library you find a card. On the card: a prize, and one line of writing &mdash; <strong>"next clue: the canteen."</strong> At the canteen, another card: a prize, and <strong>"next clue: the car park."</strong> At the car park: a prize, and <strong>"this is the last one."</strong></p>
+
+    <div class="note analogy"><span class="note-t">Map it one to one</span>
+      <ul style="margin-bottom:0">
+        <li>Each card = a <strong>node</strong></li>
+        <li>The prize on the card = the <strong>data</strong></li>
+        <li>"next clue: the canteen" = the <strong>next pointer</strong></li>
+        <li>The slip in your pocket saying where to start = <code>head</code></li>
+        <li>"this is the last one" = <code>NULL</code></li>
+      </ul>
+    </div>
+
+    <p>Three consequences fall straight out of that picture, and they explain nearly everything students find strange about linked lists:</p>
+    <ol>
+      <li><strong>The cards are scattered.</strong> The library and the canteen aren't next to each other. Nodes are scattered in memory too &mdash; which is exactly how the structure escapes the fixed-size array. It never needs one big contiguous block.</li>
+      <li><strong>You can't skip.</strong> To reach the third card you must visit the first and second. There is no <code>list[2]</code>. That's the price you pay for the flexibility, and it's why traversal is always a loop.</li>
+      <li><strong>Lose the slip in your pocket and the whole hunt is gone.</strong> Every card is still out there; you just can't reach any of them. Lose <code>head</code> and you lose the list, permanently. Hold onto this one &mdash; it comes back in about five minutes.</li>
+    </ol>
+
+    <h3>Anatomy of a node</h3>
+    <p>A node in C is a struct holding two things: a value, and an address.</p>
+<pre class="code"><span class="kw">struct</span> node {
+    <span class="kw">int</span>  data;              <span class="cm">// the prize on the card</span>
+    <span class="kw">struct</span> node *next;      <span class="cm">// where the next card is</span>
+};
+
+<span class="kw">struct</span> node *head = NULL;   <span class="cm">// the slip in your pocket. Empty list = NULL.</span></pre>
+    <p>That second line looks impossible the first time you see it: a struct containing a pointer to <em>its own type</em>. It works because <code>next</code> does not store a node &mdash; it stores an <strong>address</strong>, and an address is just a number. A card does not contain the canteen. It contains the <em>word</em> "canteen."</p>
+    <p>In every diagram below, the white cell is <code>data</code> and the <span style="color:var(--wire);font-weight:600">blue</span> cell is <code>next</code>. Blue always means "an address lives here."</p>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 8</span><h4>Read the diagram</h4></div>
+      <div class="lab-body">
+        <p>A three-node list. Click any expression to see what it evaluates to and which part of the picture it lands on.</p>
+        <div class="stage"><div id="anatChain"></div></div>
+        <div class="row" id="anatBtns"></div>
+        <div class="readout" id="anatOut">Pick an expression above.</div>
+        <div class="note"><span class="note-t">The rule for <code>-&gt;</code></span>
+          <p><code>-&gt;</code> means <strong>"follow the arrow, then look inside."</strong> So <code>head-&gt;next-&gt;data</code> is three moves: go to head, follow one arrow, read the data. Every extra <code>-&gt;next</code> is one more step down the hunt.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>Creating a node: what <code>malloc</code> really does</h3>
+    <p>Declaring a pointer does not create a node. This is the single most common misunderstanding in the topic:</p>
+<pre class="code"><span class="kw">struct</span> node *newNode;   <span class="cm">// an EMPTY luggage tag. Points nowhere useful.</span>
+
+newNode = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="kw">struct</span> node));
+<span class="cm">// NOW a real box exists somewhere in memory,
+// and the tag has that box's address written on it.</span></pre>
+    <p><code>malloc</code> asks the operating system for a chunk of memory big enough for one node and hands back its address. If memory has run out it returns <code>NULL</code> instead, which is why every allocation is followed by a check.</p>
+    <p>This is also the answer to the size wall: <code>malloc</code> runs <em>while the program is running</em>. The list grows one node at a time, on demand, for as long as the machine has memory.</p>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 9</span><h4>Build one node from scratch</h4></div>
+      <div class="lab-body">
+        <p>Run the lines in order and watch memory change. Notice that after <code>malloc</code> the box exists but holds garbage &mdash; it is <em>not</em> zeroed, and <code>next</code> is <em>not</em> automatically <code>NULL</code>.</p>
+        <div class="stage"><div id="mallocStage"><div class="emptylist">Memory is empty. Press Run next line.</div></div></div>
+        <div class="stepper" id="mallocCode"></div>
+        <div class="row">
+          <button class="btn blue" id="mallocStep">Run next line</button>
+          <button class="btn ghost sm" id="mallocReset">Start over</button>
+        </div>
+        <div class="readout" id="mallocOut">Ready.</div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ INSERT AT FRONT ============ -->
+<section id="front"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">7</span><h2>Insert at the front &mdash; where the order matters</h2></div>
+  <div class="col">
+    <p>You have a list. You want a new node at the very beginning. Two pointers must change:</p>
+    <ol>
+      <li>The new node's <code>next</code> must point at the old first node.</li>
+      <li><code>head</code> must point at the new node.</li>
+    </ol>
+    <p>Two lines. Two possible orders. <strong>Only one works</strong> &mdash; and if you pick wrong, the program still compiles, still runs, and quietly destroys your entire list.</p>
+
+    <div class="note analogy"><span class="note-t">Back to the scavenger hunt</span>
+      <p>You want to add a new first stop &mdash; the gym &mdash; before the library. The slip in your pocket currently says "library."</p>
+      <p>Write "library" on the gym card first, then change your slip to "gym": everything is fine. But change your slip to "gym" first, and you have erased the only record of where the library was &mdash; while the gym card is still blank. The whole hunt is gone and there is no way to recover it.</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind solo">LAB 10</span><h4>Order the two statements &mdash; then run both versions</h4></div>
+      <div class="lab-body">
+        <p>Drag the two statements into the order you think is right, then press Run. Then deliberately try the wrong order. Seriously &mdash; try it. Watching the list vanish is the entire point of this lab.</p>
+        <div class="dnd" data-order-game="frontOrder">
+          <div>
+            <div class="pane-t">Statements</div>
+            <div class="pool" data-pool>
+              <div class="chip" draggable="true" data-id="a">newNode-&gt;next = head;</div>
+              <div class="chip" draggable="true" data-id="b">head = newNode;</div>
+            </div>
+          </div>
+          <div>
+            <div class="pane-t">Your order</div>
+            <div class="slots">
+              <div class="dropslot" data-slot="0"><span class="idx">1</span></div>
+              <div class="dropslot" data-slot="1"><span class="idx">2</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn blue" id="frontRun">Run my order</button>
+          <button class="btn ghost sm" id="frontReset">Reset</button>
+        </div>
+        <div class="stage"><div id="frontStage"></div></div>
+        <div class="readout" id="frontOut">Place both statements, then press Run.</div>
+      </div>
+    </div>
+
+    <div class="note win"><span class="note-t">The rule to memorise</span>
+      <p><strong>Always attach the new node to the list before you move <code>head</code>.</strong> More generally: never overwrite a pointer until something else is already holding what it pointed at. Every pointer bug in this topic is a version of that one sentence.</p>
+    </div>
+
+    <details class="rev"><summary>The complete function</summary><div class="rev-body">
+<pre class="code"><span class="kw">void</span> <span class="fn">insertFront</span>(<span class="kw">int</span> data)
+{
+    <span class="kw">struct</span> node *newNode = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="kw">struct</span> node));
+
+    <span class="kw">if</span> (newNode == NULL) {
+        <span class="fn">printf</span>(<span class="st">"Out of memory\n"</span>);
+        <span class="kw">return</span>;
+    }
+
+    newNode-&gt;data = data;
+    newNode-&gt;next = head;   <span class="cm">// 1. attach to the list FIRST</span>
+    head = newNode;         <span class="cm">// 2. then move head</span>
+}</pre>
+      <p class="mini">Bonus: this works perfectly on an <strong>empty</strong> list with no special case at all. If <code>head</code> is <code>NULL</code>, then <code>newNode-&gt;next = head</code> sets next to <code>NULL</code> &mdash; exactly right for a one-node list. That elegance is not luck; it is why insert-at-front is the cheapest operation a linked list has, and why a linked-list stack pushes in three lines.</p>
+    </div></details>
+  </div>
+</div></section>
+
+<!-- ============ TRAVERSAL ============ -->
+<section id="walk"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">8</span><h2>Traversal &mdash; walking the list</h2></div>
+  <div class="col">
+    <p>Everything else you will ever do to a linked list &mdash; printing, searching, counting, inserting at the end, deleting the last node &mdash; begins by walking down it. The walk is always the same three pieces:</p>
+<pre class="code"><span class="kw">void</span> <span class="fn">display</span>()
+{
+    <span class="kw">struct</span> node *temp = head;      <span class="cm">// 1. start at the beginning</span>
+    <span class="kw">while</span> (temp != NULL) {        <span class="cm">// 2. keep going while there's a card</span>
+        <span class="fn">printf</span>(<span class="st">"%d -&gt; "</span>, temp-&gt;data);
+        temp = temp-&gt;next;         <span class="cm">// 3. take one step</span>
+    }
+    <span class="fn">printf</span>(<span class="st">"NULL\n"</span>);
+}</pre>
+    <p><code>temp = temp-&gt;next</code> is the step. Read it as: <em>"read the next-clue on the card I'm standing at, and go stand there."</em> It never moves the list; it moves <strong>you</strong>. This is also why you use <code>temp</code> and not <code>head</code> &mdash; walk with <code>head</code> and by the end of the loop <code>head</code> is <code>NULL</code> and your list is gone.</p>
+
+    <div class="note warn"><span class="note-t">The off-by-one that catches everyone</span>
+      <p>There are two loop conditions and they stop in different places. Swap them by accident and you get a crash or a missing node.</p>
+      <ul style="margin-bottom:0">
+        <li><code>while (temp != NULL)</code> &mdash; walks <strong>past</strong> the last node and ends holding nothing. Use it to <strong>visit every node</strong>: printing, searching, counting.</li>
+        <li><code>while (temp-&gt;next != NULL)</code> &mdash; stops <strong>on</strong> the last node. Use it when you need to <strong>hold</strong> the last node: inserting at the end.</li>
+      </ul>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 11</span><h4>Step the walker, and compare the two conditions</h4></div>
+      <div class="lab-body">
+        <p>Switch the condition, then step through. Watch where <span style="color:var(--live);font-weight:600">temp</span> ends up in each case.</p>
+        <div class="row">
+          <button class="btn ghost sm walkcond on" data-cond="null">while (temp != NULL)</button>
+          <button class="btn ghost sm walkcond" data-cond="next">while (temp-&gt;next != NULL)</button>
+        </div>
+        <div class="stage"><div id="walkStage"></div></div>
+        <div class="row">
+          <button class="btn blue" id="walkStep">Step</button>
+          <button class="btn ghost sm" id="walkReset">Reset</button>
+        </div>
+        <div class="readout" id="walkOut"></div>
+      </div>
+    </div>
+
+    <h3>Searching &mdash; traversal with a question attached</h3>
+    <p>Once you can walk, searching is the same loop with an <code>if</code> inside it. This is the whole function:</p>
+<pre class="code"><span class="kw">int</span> <span class="fn">search</span>(<span class="kw">int</span> key)
+{
+    <span class="kw">struct</span> node *temp = head;
+    <span class="kw">int</span> position = 0;
+
+    <span class="kw">while</span> (temp != NULL) {
+        <span class="kw">if</span> (temp-&gt;data == key) <span class="kw">return</span> position;   <span class="cm">// found it</span>
+        temp = temp-&gt;next;
+        position++;
+    }
+    <span class="kw">return</span> -1;                                    <span class="cm">// walked off the end</span>
+}</pre>
+    <p class="mini">Compare that to an array, where you could jump straight to <code>a[position]</code>. In a linked list there is no jumping &mdash; finding item 500 means 500 steps. That is the trade you accepted in exchange for unlimited growth.</p>
+
+    <h3>Insert at the end</h3>
+    <p>Now combine the two skills. To add to the back you must first <em>find</em> the back, which means walking with the second condition so you stop while still holding the last node.</p>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind solo">LAB 12</span><h4>Fill in the missing lines</h4></div>
+      <div class="lab-body">
+        <p>Four blanks. Type C into each one &mdash; semicolons optional, spacing doesn't matter. Check when you're done, or take a hint.</p>
+        <div class="fill" id="endFill"></div>
+        <div class="row">
+          <button class="btn blue" id="endCheck">Check my answers</button>
+          <button class="btn ghost sm" id="endHint">Show hint</button>
+          <button class="btn ghost sm" id="endReveal">Reveal answers</button>
+        </div>
+        <div class="readout" id="endOut">Fill in the four blanks.</div>
+      </div>
+    </div>
+
+    <div class="note warn"><span class="note-t">One case this function forgets</span>
+      <p>Look at what you just completed and ask: what if the list is <strong>empty</strong>? <code>temp = head</code> makes <code>temp</code> <code>NULL</code>, and then <code>while (temp-&gt;next != NULL)</code> reads <code>next</code> out of nothing. Segmentation fault.</p>
+      <p>A correct version tests for it first:</p>
+<pre class="code" style="margin-bottom:0"><span class="kw">if</span> (head == NULL) { head = newNode; <span class="kw">return</span>; }   <span class="cm">// empty list: the new node IS the list</span></pre>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ DELETING ============ -->
+<section id="del"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">9</span><h2>Deleting nodes</h2></div>
+  <div class="col">
+    <p>Deleting is two jobs, always in this order: <strong>re-route the arrows around the node</strong>, then <strong>hand the memory back</strong> with <code>free()</code>. Do it the other way round and you are following a pointer into memory that is no longer yours.</p>
+
+    <h3>Delete the first node</h3>
+    <p>The easy one. You need a temporary pointer for exactly one reason: once <code>head</code> moves forward, nothing remembers the old first node &mdash; and you still need its address to free it.</p>
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 13</span><h4>Delete from the front, one line at a time</h4></div>
+      <div class="lab-body">
+        <div class="stage"><div id="delFStage"></div></div>
+        <div class="stepper" id="delFCode"></div>
+        <div class="row">
+          <button class="btn blue" id="delFStep">Run next line</button>
+          <button class="btn ghost sm" id="delFReset">Reset</button>
+        </div>
+        <div class="readout" id="delFOut">Ready.</div>
+      </div>
+    </div>
+
+    <h3>Delete the last node &mdash; why one pointer isn't enough</h3>
+    <p>Here is the problem that makes this harder than it looks. To delete the last node you must set the <strong>second-to-last</strong> node's <code>next</code> to <code>NULL</code>. But a singly linked list only goes forward &mdash; once you are standing on the last node, there is no way back to the one before it.</p>
+
+    <div class="note analogy"><span class="note-t">Why two pointers</span>
+      <p>You're walking the scavenger hunt and you want to remove the final card. When you arrive at it you need to go back and cross out the "next clue" line on the <em>previous</em> card &mdash; but the cards only point forwards. You have no idea where you came from.</p>
+      <p>The fix is to walk with a friend one step behind you. When you stop, your friend is standing exactly where you need them. That friend is the second pointer.</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 14</span><h4>Two pointers walking together</h4></div>
+      <div class="lab-body">
+        <p><span style="color:var(--bad);font-weight:600">toDelete</span> leads, <span style="color:var(--wire);font-weight:600">secondLast</span> follows one step behind. Step until <code>toDelete-&gt;next</code> is <code>NULL</code>, then cut.</p>
+        <div class="stage"><div id="delLStage"></div></div>
+        <div class="stepper" id="delLCode"></div>
+        <div class="row">
+          <button class="btn blue" id="delLStep">Run next line</button>
+          <button class="btn ghost sm" id="delLReset">Reset</button>
+        </div>
+        <div class="readout" id="delLOut">Ready.</div>
+      </div>
+    </div>
+
+    <details class="rev"><summary>The full function</summary><div class="rev-body">
+<pre class="code"><span class="kw">void</span> <span class="fn">deleteLast</span>()
+{
+    <span class="kw">struct</span> node *toDelete, *secondLast = NULL;
+
+    <span class="kw">if</span> (head == NULL) { <span class="fn">printf</span>(<span class="st">"List is empty\n"</span>); <span class="kw">return</span>; }
+
+    toDelete = head;
+    <span class="kw">while</span> (toDelete-&gt;next != NULL)   <span class="cm">// stop ON the last node</span>
+    {
+        secondLast = toDelete;       <span class="cm">// friend catches up...</span>
+        toDelete = toDelete-&gt;next;   <span class="cm">// ...then you step forward</span>
+    }
+
+    <span class="kw">if</span> (toDelete == head)            <span class="cm">// only one node in the list</span>
+        head = NULL;
+    <span class="kw">else</span>
+        secondLast-&gt;next = NULL;     <span class="cm">// cut the link</span>
+
+    <span class="fn">free</span>(toDelete);                  <span class="cm">// hand the memory back LAST</span>
+}</pre>
+      <p class="mini"><strong>Order inside the loop matters.</strong> <code>secondLast = toDelete;</code> must come <em>before</em> <code>toDelete = toDelete-&gt;next;</code>. Swap them and your friend ends up standing on the same card as you, which defeats the whole point.</p>
+    </div></details>
+
+    <div class="note warn"><span class="note-t">What <code>free()</code> does and doesn't do</span>
+      <p><code>free(p)</code> returns the memory to the system. It does <strong>not</strong> change <code>p</code> &mdash; the pointer still holds the old address, and is now called a <em class="term">dangling pointer</em>. Using it after the free is undefined behaviour: sometimes it works, sometimes it crashes, sometimes it silently corrupts something three functions away. Set it to <code>NULL</code> after freeing and the bug becomes an honest crash instead of a mystery.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ PRACTICE ============ -->
+<section id="practice"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">10</span><h2>Practice</h2></div>
+  <div class="col">
+    <p>Nothing here is graded. Get it wrong as many times as you like &mdash; that is what the reset buttons are for.</p>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind solo">EXERCISE A</span><h4>Build a playlist, then edit it</h4></div>
+      <div class="lab-body">
+        <p>A music player's queue is a linked list &mdash; songs get added at the end, "play next" inserts at the front, and finishing a song deletes the first node. Work through these three tasks in order.</p>
+        <ol class="mini" style="margin-bottom:14px">
+          <li>Build the list <strong>21, 34, 55, 89</strong> by adding at the end.</li>
+          <li>Insert <strong>13</strong> at the front.</li>
+          <li>Delete the last node, then delete the first node.</li>
+        </ol>
+        <div class="row">
+          <input id="actVal" class="blank" style="background:#fff;color:var(--ink);border-color:var(--ink);width:8ch;font-size:14px;padding:7px" placeholder="value" inputmode="numeric">
+          <button class="btn sm" id="actEnd">insertEnd(value)</button>
+          <button class="btn sm blue" id="actFront">insertFront(value)</button>
+          <button class="btn sm" id="actDelLast" style="background:var(--bad);border-color:var(--bad)">deleteLast()</button>
+          <button class="btn sm ghost" id="actDelFirst">deleteFirst()</button>
+          <span class="spacer"></span>
+          <button class="btn ghost sm" id="actReset">Clear list</button>
+        </div>
+        <div class="stage"><div id="actStage"></div></div>
+        <div class="readout" id="actOut">Task 1: build 21, 34, 55, 89 using insertEnd.</div>
+        <div class="row"><button class="btn" id="actCheck">Where am I?</button></div>
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind solo">EXERCISE B</span><h4>Find the bug</h4></div>
+      <div class="lab-body">
+        <p>Each snippet has exactly one fault marked as the answer &mdash; though a couple hide a second problem worth spotting. All of them compile cleanly. That is what makes them expensive.</p>
+        <div id="bugQuiz"></div>
+      </div>
+    </div>
+
+    <h3>Exercise C &mdash; write these yourself</h3>
+    <p>No checker for these. Open your editor, start from the <code>display()</code> function, and adapt it. Each one is a traversal with something extra bolted on.</p>
+    <div class="grid2">
+      <div class="slab"><h4>1. <code>int count()</code></h4><p class="mini">Return how many nodes are in the list. Walk with <code>temp != NULL</code> and add one each time. Should return 0 on an empty list without crashing.</p></div>
+      <div class="slab"><h4>2. <code>int sum()</code></h4><p class="mini">Add up every <code>data</code> value. Same loop, different accumulator. If you can write count(), you can write this in thirty seconds.</p></div>
+      <div class="slab"><h4>3. <code>int findMax()</code></h4><p class="mini">Return the largest value. Start with <code>max = head-&gt;data</code>, not with 0 &mdash; otherwise a list of negative numbers returns the wrong answer.</p></div>
+      <div class="slab"><h4>4. <code>void deleteValue(int key)</code></h4><p class="mini">Delete the first node containing <code>key</code>, wherever it is. You'll need the two-pointer trick from Lab 14, plus a special case when the match is the head itself.</p></div>
+      <div class="slab"><h4>5. <code>void insertAfter(int key, int data)</code></h4><p class="mini">Find the node holding <code>key</code>, then splice a new node in behind it. Two lines, in an order you should now be suspicious about.</p></div>
+      <div class="slab"><h4>6. <code>void freeList()</code></h4><p class="mini">Free every node. The trap: once you <code>free(temp)</code> you cannot read <code>temp-&gt;next</code>. Save the next address <em>before</em> you free.</p></div>
+    </div>
+
+    <div class="note"><span class="note-t">A hint for number 6, because it catches almost everyone</span>
+<pre class="code" style="margin-bottom:0"><span class="kw">while</span> (head != NULL) {
+    <span class="kw">struct</span> node *nxt = head-&gt;next;   <span class="cm">// save the address FIRST</span>
+    <span class="fn">free</span>(head);
+    head = nxt;                      <span class="cm">// now it's safe to move on</span>
+}</pre>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ CAPSTONE ============ -->
+<section id="capstone"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">11</span><h2>Putting it together</h2></div>
+  <div class="col">
+    <h3>The six bugs that cost the most marks</h3>
+    <p>Every one of these compiles cleanly.</p>
+  </div>
+  <div class="grid2" style="margin:22px 0 40px">
+    <div class="slab"><h4>1. Moving <code>head</code> before linking</h4>
+      <p class="mini"><code>head = newNode;</code> then <code>newNode-&gt;next = head;</code> makes the node point at <em>itself</em> and orphans the whole list. Attach first, always.</p></div>
+    <div class="slab"><h4>2. Forgetting <code>newNode-&gt;next = NULL</code></h4>
+      <p class="mini">When adding at the end, the new last node's <code>next</code> holds whatever garbage <code>malloc</code> left there. Your print loop then walks off into random memory.</p></div>
+    <div class="slab"><h4>3. Using <code>temp-&gt;next</code> when <code>temp</code> is <code>NULL</code></h4>
+      <p class="mini">From running a loop one step too far, or skipping the <code>if (head == NULL)</code> guard at the top of a function. Instant segfault.</p></div>
+    <div class="slab"><h4>4. <code>free()</code> before re-routing</h4>
+      <p class="mini">Free the node, then try to read <code>toDelete-&gt;next</code> to fix the links. That address is no longer yours. Re-route first, free last.</p></div>
+    <div class="slab"><h4>5. Walking with <code>head</code> instead of <code>temp</code></h4>
+      <p class="mini">The loop finishes, <code>head</code> is now <code>NULL</code>, and every node is leaked. Always walk with a copy.</p></div>
+    <div class="slab"><h4>6. Confusing <code>=</code> and <code>==</code></h4>
+      <p class="mini"><code>if (head = NULL)</code> <em>assigns</em> NULL to head, destroying the list, then evaluates as false. One character, whole list gone.</p></div>
+  </div>
+
+  <div class="col">
+    <h3>The same stack, rebuilt out of nodes</h3>
+    <p>This is the payoff for doing the topic in this order. Remember the ADT contract from section 0: a stack promises <code>push</code>, <code>pop</code>, <code>peek</code>, <code>isEmpty</code>. It never promised an array.</p>
+    <p>So swap the storage. Let <code>top</code> be a pointer instead of an index. Then:</p>
+    <ul>
+      <li><strong>push</strong> is <em>insert at the front</em> &mdash; the operation you already know is two lines.</li>
+      <li><strong>pop</strong> is <em>delete the first node</em> &mdash; also already written.</li>
+    </ul>
+<pre class="code"><span class="kw">struct</span> node *top = NULL;      <span class="cm">// "head", renamed for the job it's doing</span>
+
+<span class="kw">void</span> <span class="fn">push</span>(<span class="kw">int</span> item)
+{
+    <span class="kw">struct</span> node *n = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="kw">struct</span> node));
+    <span class="kw">if</span> (n == NULL) { <span class="fn">printf</span>(<span class="st">"Out of memory\n"</span>); <span class="kw">return</span>; }
+
+    n-&gt;data = item;
+    n-&gt;next = top;        <span class="cm">// attach first</span>
+    top     = n;          <span class="cm">// then move top     <-- insertFront, exactly</span>
+}
+
+<span class="kw">int</span> <span class="fn">pop</span>()
+{
+    <span class="kw">if</span> (top == NULL) { <span class="fn">printf</span>(<span class="st">"Underflow\n"</span>); <span class="kw">return</span> -1; }
+
+    <span class="kw">struct</span> node *temp = top;
+    <span class="kw">int</span> item = top-&gt;data;
+    top = top-&gt;next;      <span class="cm">// re-route</span>
+    <span class="fn">free</span>(temp);            <span class="cm">// then free      <-- deleteFirst, exactly</span>
+    <span class="kw">return</span> item;
+}
+
+<span class="kw">int</span> <span class="fn">isEmpty</span>() { <span class="kw">return</span> top == NULL; }</pre>
+
+    <div class="note win"><span class="note-t">Look at what disappeared</span>
+      <p>There is no <code>MAX</code>. There is no overflow check, because there is no ceiling &mdash; this stack grows until the machine itself runs out of memory. The bracket checker from Lab 2 works unchanged on a file with a million nested brackets.</p>
+      <p>And the code that <em>uses</em> the stack never changed at all. That is the ADT idea from section 0, delivered.</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 15</span><h4>A stack with no size limit</h4></div>
+      <div class="lab-body">
+        <p>Same buttons as Lab 1. Push as many as you like &mdash; it will not overflow. Watch the node diagram and notice that <code>top</code> behaves exactly like <code>head</code> did.</p>
+        <div class="row">
+          <input id="lsVal" class="blank" style="background:#fff;color:var(--ink);border-color:var(--ink);width:8ch;font-size:14px;padding:7px" placeholder="value" inputmode="numeric">
+          <button class="btn blue sm" id="lsPush">push(value)</button>
+          <button class="btn sm" id="lsPop" style="background:var(--bad);border-color:var(--bad)">pop()</button>
+          <span class="spacer"></span>
+          <button class="btn ghost sm" id="lsReset">Reset</button>
+        </div>
+        <div class="stage"><div id="lsStage"></div></div>
+        <div class="readout" id="lsOut">top = NULL &nbsp;&nbsp;(stack is empty)</div>
+      </div>
+    </div>
+
+    <h3>Array or linked list?</h3>
+    <p>Both store a sequence. They fail in opposite ways.</p>
+  </div>
+  <table class="cmp">
+    <tr><th></th><th>Array</th><th>Linked list</th></tr>
+    <tr><td>In memory</td><td>One contiguous block, like numbered cinema seats</td><td>Scattered nodes joined by addresses, like scavenger-hunt cards</td></tr>
+    <tr><td>Get the 5th item</td><td>Instant &mdash; <code>a[4]</code> is one calculation</td><td>Walk from the head, four steps</td></tr>
+    <tr><td>Insert at the front</td><td>Shift every other element right</td><td>Two pointer assignments, done</td></tr>
+    <tr><td>Size</td><td>Fixed when declared</td><td>Grows and shrinks while running</td></tr>
+    <tr><td>Memory cost</td><td>Just the data</td><td>Data <em>plus</em> a pointer per node</td></tr>
+    <tr><td>Choose it when</td><td>You know the size and you jump around a lot</td><td>The size is unpredictable and you edit the ends often</td></tr>
+  </table>
+  <div class="col">
+    <p class="mini">One line worth memorising: <strong>arrays trade flexibility for speed of access; linked lists trade speed of access for flexibility.</strong></p>
+
+    <h3>Where linked lists actually run</h3>
+    <div class="grid2">
+      <div class="slab"><h4>Music and video playlists</h4><p class="mini">Add a song anywhere, remove one, reorder &mdash; no shifting. A <em>doubly</em> linked list, with a <code>prev</code> pointer as well, gives you the previous-track button for free.</p></div>
+      <div class="slab"><h4>Image and photo viewers</h4><p class="mini">Next and previous through a folder of unknown size. Circular linking makes the last image wrap to the first.</p></div>
+      <div class="slab"><h4>The memory allocator itself</h4><p class="mini"><code>malloc</code> keeps a linked list of free blocks. Yes &mdash; the function you call to build linked lists is itself managing one.</p></div>
+      <div class="slab"><h4>Browser tabs and open files</h4><p class="mini">An unknown number of items, constantly opened and closed in the middle. Exactly the case an array handles badly.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">12</span><h2>Self-check</h2></div>
+  <div class="col">
+    <p>Twenty questions across all three structures. Nothing is recorded and nothing is graded &mdash; every answer comes with an explanation, so a wrong one here is worth more than a right one you guessed.</p>
+    <div id="quizHost"></div>
+    <div class="readout" id="quizScore" style="font-size:15px">Answered 0 of 20.</div>
+  </div>
+</div></section>
+
+<footer><div class="wrap col">
+  <p><strong>Where to go next.</strong> Close this page and type out <code>push</code>, <code>pop</code>, <code>enqueue</code>, <code>dequeue</code>, <code>insertFront</code>, <code>insertEnd</code>, <code>deleteFirst</code> and <code>deleteLast</code> from memory. Compile them. Then deliberately break one pointer and see what the program does. Breaking things on purpose in a lab is how you stop breaking them by accident under pressure.</p>
+  <p class="mini">Abstract Data Types &mdash; stacks, queues and linked lists in C.</p>
+</div></footer>
+</main>
+<script>
+(function(){
+"use strict";
+const $  = (s,r)=> (r||document).querySelector(s);
+const $$ = (s,r)=> [...(r||document).querySelectorAll(s)];
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ============================================================
+   MEMORY DIAGRAM ENGINE  — every lab draws through this
+   nodes: [{v, tags:[], cls:''}]
+   opts : {endNull, wires:{i:'cut'|'dim'}, nullTags:[], emptyMsg}
+   ============================================================ */
+function tagsHTML(tags){
+  return (tags||[]).map(t=>`<span class="tag t-${t.toLowerCase().replace(/[^a-z]/g,'')}">${t}</span>`).join('');
+}
+function slotHTML(tags,inner){ return `<div class="slot"><div class="tags">${tagsHTML(tags)}</div>${inner}</div>`; }
+function nodeHTML(v,cls){ return `<div class="node ${cls||''}"><div class="cell data">${v}</div><div class="cell next"></div></div>`; }
+function nullHTML(){ return `<div class="nullbox">NULL</div>`; }
+function wireHTML(c){ return `<div class="wire ${c||''}"></div>`; }
+
+function chain(nodes,opts){
+  opts = opts||{};
+  let h = '<div class="chain">';
+  if(!nodes.length){
+    h += opts.emptyHeadNull
+      ? slotHTML(opts.nullTags||['head'], nullHTML())
+      : `<div class="emptylist">${opts.emptyMsg || 'List is empty &nbsp;(head = NULL)'}</div>`;
+  } else {
+    nodes.forEach((n,i)=>{
+      h += slotHTML(n.tags, nodeHTML(n.v,n.cls));
+      const w = (opts.wires&&opts.wires[i])||'';
+      const last = i===nodes.length-1;
+      if(!last) h += wireHTML(w);
+      else if(opts.endNull!==false) h += wireHTML(w) + slotHTML(opts.nullTags,nullHTML());
+    });
+  }
+  return h+'</div>';
+}
+function floatRow(nodes,label,opts){
+  if(!nodes.length) return '';
+  return `<div class="floater"><div class="floater-lab">${label}</div>${chain(nodes,Object.assign({endNull:false},opts||{}))}</div>`;
+}
+function say(el,html){ if(el) el.innerHTML = html; }
+const K=s=>`<span class="k">${s}</span>`, G=s=>`<span class="g">${s}</span>`,
+      R=s=>`<span class="r">${s}</span>`, Y=s=>`<span class="y">${s}</span>`;
+
+/* ============================================================ HERO */
+(function(){
+  const el=$('#heroChain'); if(!el) return;
+  const A=[{v:12,tags:['head']},{v:25,tags:[]},{v:8,tags:[]}];
+  const B=[{v:7,tags:['head','newNode'],cls:'fresh'},{v:12,tags:[]},{v:25,tags:[]},{v:8,tags:[]}];
+  if(RM){ el.innerHTML=chain(B); return; }
+  el.innerHTML=chain(A);
+  setTimeout(()=>{ el.innerHTML=chain(A)+floatRow([{v:7,tags:['newNode'],cls:'fresh'}],'malloc() — a new node exists, attached to nothing'); },1200);
+  setTimeout(()=>{ el.innerHTML=chain(B); },2600);
+})();
+
+/* ============================================================ generic stepper */
+function makeStepper(codeEl,lines){
+  return function(cur,done){
+    codeEl.innerHTML='<pre class="code">'+lines.map((l,i)=>
+      `<span class="line ${i===cur?'on':''} ${i<done?'done':''}">${l}</span>`).join('')+'</pre>';
+  };
+}
+
+/* ============================================================ generic MCQ */
+function renderMCQ(host,qs,onAnswer){
+  host.innerHTML=qs.map((q,i)=>`
+    <div class="q" data-q="${i}">
+      <div class="qt">${i+1}. ${q.q}</div>
+      ${q.c.map((c,j)=>`<div class="opt" data-o="${j}"><span class="mk">${'ABCD'[j]}</span><span>${c}</span></div>`).join('')}
+      <div class="fb"></div>
+    </div>`).join('');
+  $$('.q',host).forEach((qEl,i)=>{
+    const q=qs[i], fb=$('.fb',qEl);
+    $$('.opt',qEl).forEach(o=>o.addEventListener('click',()=>{
+      if(qEl.dataset.locked) return; qEl.dataset.locked='1';
+      const j=+o.dataset.o, right=j===q.a;
+      $$('.opt',qEl).forEach((x,k)=>{ if(k===q.a) x.classList.add('right'); else if(k===j) x.classList.add('wrong'); });
+      fb.className='fb show '+(right?'good':'bad');
+      fb.innerHTML=(right?'<b class="tick">\u2713 Correct. </b>':'<b>Not quite. </b>')+q.e;
+      if(onAnswer) onAnswer(right);
+    }));
+  });
+}
+
+/* ============================================================ DRAG & DROP */
+function initDnD(root){
+  const pool=$('[data-pool]',root), slots=$$('.dropslot',root);
+  function addX(chip){
+    if($('.x',chip)) return;
+    const b=document.createElement('button');
+    b.className='x'; b.type='button'; b.textContent='\u2715';
+    b.setAttribute('aria-label','Return this statement to the pool');
+    b.addEventListener('click',e=>{ e.stopPropagation(); toPool(chip); });
+    chip.appendChild(b);
+  }
+  function toPool(chip){ const x=$('.x',chip); if(x)x.remove(); pool.appendChild(chip); clearMarks(); }
+  function clearMarks(){ slots.forEach(s=>s.classList.remove('right','wrong')); }
+  function place(chip,slot){
+    const cur=$('.chip',slot);
+    if(cur&&cur!==chip) toPool(cur);
+    slot.appendChild(chip); addX(chip); clearMarks();
+  }
+  $$('.chip',root).forEach(c=>{ c.tabIndex=0; wire(c); });
+  function wire(c){
+    c.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/plain',c.dataset.id); c.classList.add('dragging'); });
+    c.addEventListener('dragend',()=>c.classList.remove('dragging'));
+    c.addEventListener('keydown',e=>{
+      if(e.key!=='Enter'&&e.key!==' ') return; e.preventDefault();
+      if(c.parentElement.classList.contains('dropslot')) toPool(c);
+      else { const free=slots.find(s=>!$('.chip',s)); if(free){ place(c,free); c.focus(); } }
+    });
+    let ghost=null,ox=0,oy=0;
+    c.addEventListener('touchstart',e=>{
+      if(e.target.classList.contains('x')) return;
+      const t=e.touches[0], r=c.getBoundingClientRect();
+      ox=t.clientX-r.left; oy=t.clientY-r.top;
+      ghost=c.cloneNode(true); ghost.classList.add('floatdrag');
+      ghost.style.width=r.width+'px'; ghost.style.left=r.left+'px'; ghost.style.top=r.top+'px';
+      document.body.appendChild(ghost); c.classList.add('dragging');
+    },{passive:true});
+    c.addEventListener('touchmove',e=>{
+      if(!ghost) return; e.preventDefault();
+      const t=e.touches[0];
+      ghost.style.left=(t.clientX-ox)+'px'; ghost.style.top=(t.clientY-oy)+'px';
+      const el=document.elementFromPoint(t.clientX,t.clientY);
+      slots.forEach(s=>s.classList.toggle('over', !!el && s.contains(el)));
+    },{passive:false});
+    c.addEventListener('touchend',e=>{
+      if(!ghost) return;
+      const t=e.changedTouches[0], el=document.elementFromPoint(t.clientX,t.clientY);
+      ghost.remove(); ghost=null; c.classList.remove('dragging');
+      slots.forEach(s=>s.classList.remove('over'));
+      const slot=el&&el.closest?el.closest('.dropslot'):null;
+      if(slot) place(c,slot); else if(el&&el.closest&&el.closest('[data-pool]')) toPool(c);
+    });
+  }
+  slots.concat([pool]).forEach(z=>{
+    z.addEventListener('dragover',e=>{ e.preventDefault(); if(z.classList.contains('dropslot')) z.classList.add('over'); });
+    z.addEventListener('dragleave',()=>z.classList.remove('over'));
+    z.addEventListener('drop',e=>{
+      e.preventDefault(); z.classList.remove('over');
+      const chip=$(`.chip[data-id="${e.dataTransfer.getData('text/plain')}"]`,root); if(!chip) return;
+      if(z.classList.contains('dropslot')) place(chip,z); else toPool(chip);
+    });
+  });
+  return {
+    order:()=>slots.map(s=>{ const c=$('.chip',s); return c?c.dataset.id:null; }),
+    mark:ans=>slots.forEach((s,i)=>{ const c=$('.chip',s); if(!c) return;
+          s.classList.toggle('right',c.dataset.id===ans[i]);
+          s.classList.toggle('wrong',c.dataset.id!==ans[i]); }),
+    reset:()=>{ $$('.chip',root).forEach(toPool); clearMarks(); }
+  };
+}
+function orderGame(sel,ans,btnOk,btnRs,outSel,okMsg,badMsg){
+  const root=$(sel); if(!root) return;
+  const dnd=initDnD(root), out=$(outSel);
+  $(btnOk).onclick=()=>{
+    const o=dnd.order();
+    if(o.includes(null)){ say(out,`${Y('Fill every slot first.')}`); return; }
+    dnd.mark(ans);
+    say(out, o.join()===ans.join()?okMsg:badMsg);
+  };
+  $(btnRs).onclick=()=>{ dnd.reset(); say(out,'Place all the steps, then check.'); };
+}
+
+/* ============================================================ LAB 1 — array stack */
+function stackHTML(S,MAX,anim){
+  let idx='<div class="sidxcol">', box='<div class="stackbox">';
+  for(let i=0;i<MAX;i++){
+    const f=i<S.length;
+    idx+=`<div class="sidx">[${i}]</div>`;
+    box+=`<div class="scell ${f?'filled':'empty'} ${i===S.length-1?'top-marker':''} ${i===anim?'pushing':''}">${f?S[i]:'\u00b7'}</div>`;
+  }
+  return idx+'</div>'+box+'</div>';
+}
+(function(){
+  const stage=$('#stkStage'), out=$('#stkOut'); if(!stage) return;
+  const MAX=5; let S=[];
+  const draw=a=>stage.innerHTML=stackHTML(S,MAX,a);
+  $('#stkPush').onclick=()=>{
+    const v=parseInt($('#stkVal').value,10);
+    if(isNaN(v)){ say(out,`${Y('Type a number to push.')}`); return; }
+    if(S.length===MAX){ draw(); say(out,`${R('OVERFLOW.')} top == MAX-1 == 4, so push refuses and nothing is written.\ntop = ${S.length-1}\n\nThis is why ${K('if (top == MAX-1)')} must be the first line of push().`); return; }
+    S.push(v); draw(S.length-1); $('#stkVal').value='';
+    say(out,`${K('++top')} moved to ${S.length-1}, then ${K('stack[top] = '+v)}.\ntop = ${S.length-1} — ${G(v)} is now the only reachable item.`);
+  };
+  $('#stkPop').onclick=()=>{
+    if(!S.length){ draw(); say(out,`${R('UNDERFLOW.')} top == -1, so there is nothing to remove.\n\nThis is why ${K('if (top == -1)')} must be the first line of pop().`); return; }
+    const v=S.pop(); draw();
+    say(out,`${K('item = stack[top]')} read ${G(v)}, then ${K('--top')}.\ntop = ${S.length-1}\n\n${v} is still physically in the array — it is just above top now, so it is unreachable and the next push overwrites it.`);
+  };
+  $('#stkPeek').onclick=()=>{
+    if(!S.length){ say(out,`${R('Nothing to peek at.')} top = -1`); return; }
+    draw(); say(out,`${K('peek()')} returns ${G(S[S.length-1])} and ${Y('leaves top alone')}.\nThat is the whole difference between peek and pop.`);
+  };
+  $('#stkReset').onclick=()=>{ S=[]; draw(); say(out,'top = -1 &nbsp;&nbsp;(stack is empty)'); };
+  draw();
+})();
+(function(){
+  const inp=$('#trcIn'), out=$('#trcOut'); if(!inp) return;
+  $('#trcCheck').onclick=()=>{
+    const g=inp.value.split(/[,\s]+/).filter(Boolean).join(',');
+    if(g==='4,5') say(out,`${G('Correct — 4, 5.')}\n\npush4 [4] · push7 [4,7] · pop [4] · push9 [4,9] · push2 [4,9,2] · pop [4,9] · pop [4] · push5 ${G('[4,5]')}\n\n4 never moved. It went in first and sat at the bottom the whole time — that is LIFO working exactly as advertised.`);
+    else if(g==='5,4') say(out,`${Y('Right values, wrong direction.')} You listed it top-to-bottom. Bottom first, the answer is 4, 5.`);
+    else say(out,`${R('Not quite.')} Redo it one call at a time and write the array down after each. Remember pop removes the ${Y('most recently pushed')} value, never the oldest.`);
+  };
+})();
+
+/* ============================================================ LAB 2 — bracket checker */
+(function(){
+  const chars=$('#brChars'), stk=$('#brStack'), out=$('#brOut'); if(!chars) return;
+  const PAIR={')':'(',']':'[','}':'{'};
+  let s='{a[b(c)]}', i=0, S=[], dead=false;
+  function draw(){
+    chars.innerHTML=[...s].map((c,k)=>{
+      const col = k<i?'var(--ink3)':k===i?'var(--live)':'var(--ink)';
+      const w   = k===i?'font-weight:700;text-decoration:underline':'';
+      return `<span style="color:${col};${w}">${c}</span>`;
+    }).join('');
+    stk.innerHTML=stackHTML(S,6,-1);
+  }
+  function load(str){ s=str||'{a[b(c)]}'; i=0; S=[]; dead=false; draw(); $('#brStep').disabled=false; $('#brStep').textContent='Next character'; say(out,`Loaded ${K(s)} — stack empty, ready.`); }
+  function fin(msg){ dead=true; $('#brStep').disabled=true; $('#brStep').textContent='Finished'; say(out,msg); }
+  $('#brStep').onclick=()=>{
+    if(dead) return;
+    if(i>=s.length){
+      draw();
+      return fin(S.length===0
+        ? `${G('BALANCED.')} End of string and the stack is empty — every opener found its closer.`
+        : `${R('NOT BALANCED.')} End of string but ${S.length} bracket(s) still on the stack: ${R(S.join(' '))} — opened and never closed.`);
+    }
+    const c=s[i]; i++;
+    if('([{'.includes(c)){ S.push(c); draw(); say(out,`Read ${K(c)} — an opener, so ${G('push')} it. Stack: ${S.join(' ')||'empty'}`); }
+    else if(')]}'.includes(c)){
+      if(!S.length){ draw(); return fin(`Read ${K(c)} — a closer, but the stack is ${R('empty')}.\n\n${R('NOT BALANCED.')} Nothing was open, so this bracket closes nothing.`); }
+      const o=S.pop(); draw();
+      if(o===PAIR[c]) say(out,`Read ${K(c)} — a closer, so ${Y('pop')} gives ${G(o)}. They match. Stack: ${S.join(' ')||'empty'}`);
+      else return fin(`Read ${K(c)} — popped ${R(o)}, which does not match.\n\n${R('NOT BALANCED.')} You closed a ${o} with a ${c}.`);
+    }
+    else { draw(); say(out,`Read ${K(c)} — not a bracket, ignore it. Stack: ${S.join(' ')||'empty'}`); }
+  };
+  $('#brLoad').onclick=()=>load($('#brIn').value.trim());
+  $('#brReset').onclick=()=>load(s);
+  $$('[data-br]').forEach(b=>b.onclick=()=>{ $('#brIn').value=b.dataset.br; load(b.dataset.br); });
+  load(s);
+})();
+
+/* ============================================================ LAB 3 — reverse */
+(function(){
+  const stk=$('#revStack'), out=$('#revOut'); if(!stk) return;
+  let timers=[];
+  function clear(){ timers.forEach(clearTimeout); timers=[]; }
+  function draw(S,n){ stk.innerHTML=stackHTML(S,n,S.length-1); }
+  $('#revRun').onclick=()=>{
+    clear();
+    const w=($('#revIn').value||'').toUpperCase().replace(/\s/g,'').slice(0,12);
+    if(!w){ say(out,`${Y('Type a word first.')}`); return; }
+    const S=[], n=w.length, d=RM?0:230;
+    draw(S,n); say(out,`Pushing ${n} characters...`);
+    [...w].forEach((c,k)=>timers.push(setTimeout(()=>{
+      S.push(c); draw(S,n);
+      say(out,`${K('push')}(${G(c)})  —  ${k+1} of ${n} on the stack.${k===n-1?`\n\nThe ${Y('last')} character is now on top, so it will come out ${Y('first')}.`:''}`);
+    },d*k)));
+    let outStr='';
+    for(let k=0;k<n;k++) timers.push(setTimeout(()=>{
+      const c=S.pop(); outStr+=c; draw(S,n);
+      say(out,`${Y('pop')}() gave ${G(c)}  —  output so far: ${G(outStr)}${k===n-1?`\n\n${G(w)} reversed is ${G(outStr)}.${outStr===w?' It is a palindrome.':''}`:''}`);
+    },d*n+300+d*k));
+  };
+  $('#revReset').onclick=()=>{ clear(); draw([],10); say(out,'Type a word and run it.'); };
+  draw([],10);
+})();
+
+/* LAB 4 — push order */
+orderGame('[data-order-game="pushOrder"]',['a','b','e','c','d'],'#pshCheck','#pshReset','#pshOut',
+ `${G('Correct.')}\n1. Check if top == MAX-1\n2. If full, print Overflow and return\n3. ++top\n4. stack[top] = item\n5. Report success\n\nThe trap is steps 3 and 4. ${K('top')} points at the ${Y('last item stored')}, so it must move up to the empty slot before you write.`,
+ `${R('Not yet.')} Two things:\n• The full-check must happen ${Y('before anything is written')}, or you write past the end of the array.\n• Does top move before or after the write? top points at the ${Y('last item stored')} — so where must it be pointing when stack[top] = item runs?`);
+
+/* ============================================================ LAB 5 — linear queue */
+(function(){
+  const stage=$('#qStage'), out=$('#qOut'); if(!stage) return;
+  const MAX=8; let front=-1, rear=-1, cells=new Array(MAX).fill(null);
+  function draw(){
+    let m='<div class="qmarks">', c='<div class="qtrack">', ix='<div class="qidx">';
+    for(let i=0;i<MAX;i++){
+      m += (i===front&&i===rear&&front!==-1)?'<span class="qmark f">front/rear</span>'
+         : (i===front&&front!==-1)?'<span class="qmark f">front</span>'
+         : (i===rear&&rear!==-1)?'<span class="qmark r">rear</span>':'<span class="qmark"></span>';
+      const dead=front>0&&i<front, filled=front!==-1&&i>=front&&i<=rear;
+      c+=`<div class="qcell ${filled?'filled':''} ${dead?'dead':''}">${cells[i]!==null?cells[i]:'\u00b7'}</div>`;
+      ix+=`<span>[${i}]</span>`;
+    }
+    stage.innerHTML=m+'</div>'+c+'</div>'+ix+'</div>';
+  }
+  const st=()=>`front = ${front}, rear = ${rear}`;
+  $('#qAdd').onclick=()=>{
+    const v=parseInt($('#qVal').value,10);
+    if(isNaN(v)){ say(out,`${Y('Type a number to enqueue.')}`); return; }
+    if(rear===MAX-1){ draw(); say(out,`${R('Queue reports FULL.')} rear == MAX-1.\n${st()}\n\n${front>0?R(front+' cells at the start are empty and unusable')+' — that is the drift problem. The circular version below fixes it.':'It really is full.'}`); return; }
+    if(front===-1) front=0;
+    rear++; cells[rear]=v; draw(); $('#qVal').value='';
+    say(out,`${K('rear = rear + 1')} → ${rear}, then ${K('queue[rear] = '+v)}.\n${st()} — ${G(v)} joined the back of the line.`);
+  };
+  $('#qDel').onclick=()=>{
+    if(front===-1||front>rear){ draw(); say(out,`${R('UNDERFLOW.')} Nobody in the line to serve.\n${st()}`); return; }
+    const v=cells[front]; cells[front]=null; front++;
+    if(front>rear){ front=-1;rear=-1;cells=new Array(MAX).fill(null); draw();
+      say(out,`Served ${G(v)}. That was the last one, so both markers reset to -1.\n${st()} — ${Y('empty again')}.`); return; }
+    draw();
+    say(out,`${K('data = queue[front]')} read ${G(v)}, then ${K('front = front + 1')}.\n${st()}\n\nCell ${front-1} is now ${R('dead')} — front never moves backwards, so that slot can never be reused.`);
+  };
+  $('#qReset').onclick=()=>{ front=-1;rear=-1;cells=new Array(MAX).fill(null); draw(); say(out,'front = -1, rear = -1 &nbsp;&nbsp;(queue is empty)'); };
+  draw();
+})();
+
+/* LAB 6 — enqueue order */
+orderGame('[data-order-game="enqOrder"]',['a','b','d','c','e'],'#enqCheck','#enqReset','#enqOut',
+ `${G('Correct.')}\n1. Check if the queue is full\n2. If full, print Overflow and return\n3. rear = rear + 1\n4. queue[rear] = data\n5. Report success\n\nSame shape as push(). ${K('rear')} points at the last item stored, so it moves to the empty slot ${Y('before')} you write.`,
+ `${R('Not yet.')}\n• The full-check must happen ${Y('before anything is written')}.\n• rear points at the ${Y('last item stored')}, not the next free slot — so which comes first, moving rear or writing?`);
+
+/* ============================================================ LAB 7 — circular queue */
+(function(){
+  const stage=$('#cqStage'), out=$('#cqOut'); if(!stage) return;
+  const MAX=6; let front=0, rear=-1, count=0, cells=new Array(MAX).fill(null);
+  function draw(){
+    let m='<div class="qmarks">', c='<div class="qtrack">', ix='<div class="qidx">';
+    for(let i=0;i<MAX;i++){
+      const isF=count>0&&i===front, isR=count>0&&i===rear;
+      m += (isF&&isR)?'<span class="qmark f">front/rear</span>'
+         : isF?'<span class="qmark f">front</span>'
+         : isR?'<span class="qmark r">rear</span>':'<span class="qmark"></span>';
+      c+=`<div class="qcell ${cells[i]!==null?'filled':''}">${cells[i]!==null?cells[i]:'\u00b7'}</div>`;
+      ix+=`<span>[${i}]</span>`;
+    }
+    stage.innerHTML=m+'</div>'+c+'</div>'+ix+'</div>';
+  }
+  const st=()=>`front = ${front}, rear = ${rear}, count = ${count}`;
+  function add(v,quiet){
+    if(count===MAX){ draw(); say(out,`${R('Queue full.')} count == MAX == ${MAX}.\n${st()}\n\nThis time it is ${G('genuinely full')} — every slot holds a value. No space is wasted.`); return false; }
+    const old=rear; rear=(rear+1)%MAX; cells[rear]=v; count++;
+    draw();
+    if(!quiet) say(out,`${K('rear = ('+old+' + 1) % '+MAX)} → ${G(rear)}${old===MAX-1?'  '+Y('← wrapped back to the start'):''}, then ${K('queue[rear] = '+v)}.\n${st()}`);
+    return true;
+  }
+  $('#cqAdd').onclick=()=>{
+    const v=parseInt($('#cqVal').value,10);
+    if(isNaN(v)){ say(out,`${Y('Type a number to enqueue.')}`); return; }
+    if(add(v)) $('#cqVal').value='';
+  };
+  $('#cqDel').onclick=()=>{
+    if(count===0){ draw(); say(out,`${R('Queue empty.')} count == 0.\n${st()}\n\nNotice front and rear alone could not tell you this — that is why count exists.`); return; }
+    const v=cells[front], old=front; cells[front]=null; front=(front+1)%MAX; count--;
+    draw();
+    say(out,`Served ${G(v)}, then ${K('front = ('+old+' + 1) % '+MAX)} → ${G(front)}${old===MAX-1?'  '+Y('← wrapped'):''}.\n${st()}\n\nSlot ${old} is ${G('free for reuse')} now — not dead. That is the whole point.`);
+  };
+  $('#cqFill').onclick=()=>{ let v=10; while(count<MAX){ add(v,true); v+=10; } draw(); say(out,`Filled all ${MAX} slots.\n${st()}\n\nNow dequeue three and enqueue three more — watch rear wrap from ${MAX-1} back to 0.`); };
+  $('#cqReset').onclick=()=>{ front=0;rear=-1;count=0;cells=new Array(MAX).fill(null); draw(); say(out,'front = 0, rear = -1, count = 0 &nbsp;&nbsp;(empty)'); };
+  draw();
+})();
+
+/* ============================================================ LAB 8 — anatomy */
+(function(){
+  const stage=$('#anatChain'), btns=$('#anatBtns'), out=$('#anatOut'); if(!stage) return;
+  const vals=[32,43,56];
+  const EX=[
+    {e:'head',i:0,note:'the <b>address</b> of the first node — not the number 32',r:K('0x8f2a10')+'  (an address)'},
+    {e:'head-&gt;data',i:0,note:'follow head, read the data cell',r:G('32')},
+    {e:'head-&gt;next',i:1,note:'follow head, read the <span style="color:#7EB8F5">blue</span> cell — the address of node 2',r:K('0x8f2a40')+'  (an address)'},
+    {e:'head-&gt;next-&gt;data',i:1,note:'two steps in, then read the data',r:G('43')},
+    {e:'head-&gt;next-&gt;next-&gt;data',i:2,note:'three steps in',r:G('56')},
+    {e:'head-&gt;next-&gt;next-&gt;next',i:-1,note:"the last node's next cell holds NULL — this is how you know the list ended",r:Y('NULL')},
+    {e:'head-&gt;next-&gt;next-&gt;next-&gt;data',i:-2,note:'you asked NULL for its data. There is no node there.',r:R('SEGMENTATION FAULT — crash')}
+  ];
+  function draw(sel){
+    const ex=sel==null?null:EX[sel];
+    stage.innerHTML=chain(vals.map((v,i)=>({v,tags:i===0?['head']:[],cls:(ex&&ex.i===i)?'hot':''})),
+      {nullTags: ex&&ex.i===-1?['result']:[]});
+  }
+  btns.innerHTML=EX.map((x,i)=>`<button class="btn ghost sm" data-i="${i}"><code style="background:none;border:none;padding:0;color:inherit">${x.e}</code></button>`).join('');
+  $$('button',btns).forEach(b=>b.onclick=()=>{
+    $$('button',btns).forEach(o=>o.classList.remove('blue')); b.classList.add('blue');
+    const x=EX[+b.dataset.i]; draw(+b.dataset.i);
+    say(out,`<b>${x.e}</b>\n${x.r}\n\n${x.note}`);
+  });
+  draw(null);
+})();
+
+/* ============================================================ LAB 9 — malloc */
+(function(){
+  const stage=$('#mallocStage'), out=$('#mallocOut'), code=$('#mallocCode'),
+        bS=$('#mallocStep'), bR=$('#mallocReset'); if(!stage) return;
+  const render=makeStepper(code,[
+    '<span class="kw">struct</span> node *newNode;',
+    'newNode = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="kw">struct</span> node));',
+    'newNode-&gt;data = 76;',
+    'newNode-&gt;next = NULL;'
+  ]);
+  let s=0;
+  const ST=[
+    ()=>{ stage.innerHTML='<div class="emptylist">No node exists yet. <code>newNode</code> is just a label with garbage on it.</div>';
+          say(out,`${Y('Declared a pointer.')} Nothing was created. Using newNode->data right now would crash.`); },
+    ()=>{ stage.innerHTML=chain([{v:'?',tags:['newNode'],cls:'fresh'}],{endNull:false});
+          say(out,`${G('malloc succeeded.')} A real box exists in memory and newNode holds its address.\nBoth cells contain ${R('garbage')} — malloc does not clear them.`); },
+    ()=>{ stage.innerHTML=chain([{v:76,tags:['newNode']}],{endNull:false});
+          say(out,`Data cell written. The ${K('next')} cell is ${R('still garbage')} — a print loop would walk into random memory.`); },
+    ()=>{ stage.innerHTML=chain([{v:76,tags:['newNode']}],{nullTags:[]});
+          say(out,`${G('Node complete.')} It is a valid one-node list — but nothing points at it yet, so it is attached to nothing.`); }
+  ];
+  function reset(){ s=0; render(-1,0); stage.innerHTML='<div class="emptylist">Memory is empty. Press Run next line.</div>'; say(out,'Ready.'); bS.disabled=false; bS.textContent='Run next line'; }
+  bS.onclick=()=>{ if(s>=ST.length) return; ST[s](); render(s,s); s++; if(s>=ST.length){bS.disabled=true;bS.textContent='Done';} };
+  bR.onclick=reset; reset();
+})();
+
+/* ============================================================ LAB 10 — insert at front */
+(function(){
+  const root=$('[data-order-game="frontOrder"]'); if(!root) return;
+  const dnd=initDnD(root), stage=$('#frontStage'), out=$('#frontOut'), L=[32,43,56];
+  const base=()=>L.map((v,i)=>({v,tags:i===0?['head']:[]}));
+  const start=()=>chain(base())+floatRow([{v:45,tags:['newNode']}],'newNode — allocated, not yet attached');
+  stage.innerHTML=start();
+  $('#frontRun').onclick=()=>{
+    const o=dnd.order();
+    if(o.includes(null)){ say(out,`${Y('Place both statements in the slots first.')}`); return; }
+    dnd.mark(['a','b']);
+    if(o[0]==='a'){
+      stage.innerHTML=chain([{v:45,tags:['newNode']}].concat(base()));
+      setTimeout(()=>{ stage.innerHTML=chain([{v:45,tags:['head','newNode'],cls:'fresh'}].concat(L.map(v=>({v,tags:[]})))); },RM?0:800);
+      say(out,`${G('Correct.')}\n\n${K('newNode->next = head;')}  the new node now points at 32. Nothing is lost — head is still holding 32 as well.\n${K('head = newNode;')}      head moves forward onto 45.\n\nFinal list: ${G('45 -> 32 -> 43 -> 56 -> NULL')}`);
+    } else {
+      stage.innerHTML=chain([{v:45,tags:['head','newNode'],cls:'doomed'}],{endNull:false})
+        +'<div class="leakbadge">newNode-&gt;next now points back at newNode — an infinite loop</div>'
+        +floatRow(L.map(v=>({v,tags:[],cls:'lost'})),'Unreachable. Still allocated, nothing points here.');
+      say(out,`${R('This destroys the list.')}\n\n${K('head = newNode;')}      head jumps to 45. ${R('The address of 32 is now gone forever')} — nothing anywhere holds it.\n${K('newNode->next = head;')}  head IS newNode now, so the node points at ${R('itself')}.\n\nResult: a one-node loop, plus three leaked nodes you can never reach or free.`);
+    }
+  };
+  $('#frontReset').onclick=()=>{ dnd.reset(); stage.innerHTML=start(); say(out,'Place both statements, then press Run.'); };
+})();
+
+/* ============================================================ LAB 11 — traversal */
+(function(){
+  const stage=$('#walkStage'), out=$('#walkOut'); if(!stage) return;
+  const V=[32,43,56,76]; let i=0, mode='null', done=false;
+  function draw(){
+    const nodes=V.map((v,k)=>({v,tags:k===0?['head']:[],cls:(k===i&&!done)?'hot':''}));
+    if(mode==='null'&&i>=V.length) stage.innerHTML=chain(nodes,{nullTags:['temp']});
+    else { if(i<V.length) nodes[i].tags=nodes[i].tags.concat(['temp']); stage.innerHTML=chain(nodes); }
+  }
+  function msg(){
+    if(mode==='null'){
+      if(i<V.length) return `temp -> ${G(V[i])}\ncondition ${K('temp != NULL')} is ${G('true')} — printf runs, then temp = temp->next`;
+      return `temp is now ${Y('NULL')}\ncondition ${K('temp != NULL')} is ${R('false')} — loop ends.\n\n${G('All 4 nodes visited.')} temp finished past the end holding nothing.`;
+    }
+    if(i<V.length-1) return `temp -> ${G(V[i])}\ncondition ${K('temp->next != NULL')} is ${G('true')} — take another step`;
+    return `temp -> ${G(V[i])}\ncondition ${K('temp->next != NULL')} is ${R('false')} — loop ends.\n\n${G('temp is still holding the LAST node.')} That is exactly what insert-at-end needs.`;
+  }
+  function syncBtn(){ const b=$('#walkStep');
+    b.disabled=(mode==='null'&&i>=V.length)||(mode==='next'&&i>=V.length-1);
+    b.textContent=b.disabled?'Loop finished':'Step'; }
+  $('#walkStep').onclick=()=>{
+    if(mode==='null'){ if(i>=V.length) return; i++; if(i>=V.length) done=true; }
+    else { if(i>=V.length-1) return; i++; }
+    draw(); say(out,msg()); syncBtn();
+  };
+  function reset(){ i=0; done=false; draw(); say(out,msg()); syncBtn(); }
+  $('#walkReset').onclick=reset;
+  $$('.walkcond').forEach(b=>b.onclick=()=>{
+    $$('.walkcond').forEach(o=>o.classList.remove('on','blue'));
+    b.classList.add('on','blue'); mode=b.dataset.cond; reset();
+  });
+  $$('.walkcond')[0].classList.add('blue'); reset();
+})();
+
+/* ============================================================ LAB 12 — fill in the blanks */
+(function(){
+  const host=$('#endFill'), out=$('#endOut'); if(!host) return;
+  const norm=s=>s.replace(/\s+/g,'').replace(/;+$/,'').toLowerCase();
+  const B=[
+    {a:['newnode->next=null'],hint:'Mark the new node as the end of the list.'},
+    {a:['head'],hint:'Where does every walk begin?'},
+    {a:['next'],hint:'Stop ON the last node, not past it.'},
+    {a:['temp->next=newnode'],hint:'temp is holding the old last node. Hook the new one on.'}
+  ];
+  host.innerHTML=
+`<span class="kw">void</span> insertEnd(<span class="kw">int</span> data) {
+    <span class="kw">struct</span> node *newNode, *temp;
+    newNode = (<span class="kw">struct</span> node*)malloc(<span class="kw">sizeof</span>(<span class="kw">struct</span> node));
+    newNode-&gt;data = data;
+    <input class="blank" data-b="0" placeholder="blank 1">          <span class="cm">// this node is the new end</span>
+    temp = <input class="blank" data-b="1" placeholder="blank 2">;         <span class="cm">// start the walk</span>
+    <span class="kw">while</span> (temp-&gt;<input class="blank" data-b="2" style="width:7ch" placeholder="3"> != NULL)   <span class="cm">// stop ON the last node</span>
+        temp = temp-&gt;next;
+    <input class="blank" data-b="3" placeholder="blank 4">          <span class="cm">// attach it</span>
+}`;
+  const ins=$$('input',host);
+  $('#endCheck').onclick=()=>{
+    let ok=0;
+    ins.forEach((inp,k)=>{
+      const good=B[k].a.includes(norm(inp.value));
+      inp.classList.toggle('good',good);
+      inp.classList.toggle('bad',!good&&inp.value.trim()!=='');
+      if(good) ok++;
+    });
+    say(out, ok===4
+      ? `${G('All four correct.')} Trace it once more in your head on a 3-node list: you should end with temp on the old last node, and its blue cell now holding newNode's address.`
+      : `${Y(ok+' of 4 correct.')} Red boxes are wrong. Blanks 1 and 4 are whole statements, blank 2 is a variable name, blank 3 is a field name.`);
+  };
+  $('#endHint').onclick=()=>say(out,B.map((b,k)=>`${K('blank '+(k+1))}  ${b.hint}`).join('\n'));
+  $('#endReveal').onclick=()=>{
+    ins[0].value='newNode->next = NULL;'; ins[1].value='head'; ins[2].value='next'; ins[3].value='temp->next = newNode;';
+    ins.forEach(i=>{ i.classList.add('good'); i.classList.remove('bad'); });
+    say(out,`${Y('Revealed.')} Now reset it and type it from memory — that is the part that sticks.`);
+  };
+})();
+
+/* ============================================================ LAB 13 — delete first */
+(function(){
+  const stage=$('#delFStage'), out=$('#delFOut'), code=$('#delFCode'),
+        bS=$('#delFStep'), bR=$('#delFReset'); if(!stage) return;
+  const render=makeStepper(code,[
+    'temp = head;',
+    'head = head-&gt;next;',
+    '<span class="fn">printf</span>(<span class="st">"Deleted %d"</span>, temp-&gt;data);',
+    '<span class="fn">free</span>(temp);'
+  ]);
+  let s=0;
+  const ST=[
+    ()=>{ stage.innerHTML=chain([{v:32,tags:['head','temp'],cls:'hot'},{v:43,tags:[]},{v:56,tags:[]}]);
+          say(out,`temp now holds the same address as head. ${Y('Two labels, one node.')} That is the whole trick — you need a second grip on node 32 before head lets go.`); },
+    ()=>{ stage.innerHTML=chain([{v:43,tags:['head']},{v:56,tags:[]}])
+            +floatRow([{v:32,tags:['temp'],cls:'doomed'}],'Off the list — but temp still holds it, so it is not lost');
+          say(out,`head moved to 43. Node 32 is ${Y('no longer part of the list')}.\nIf temp did not exist, that address would be gone and the memory leaked forever.`); },
+    ()=>{ say(out,`Output: ${G('Deleted 32')}\n\nRead the data ${Y('before')} freeing. After free() this value is not yours to read.`); },
+    ()=>{ stage.innerHTML=chain([{v:43,tags:['head']},{v:56,tags:[]}]);
+          say(out,`${G('Memory returned to the system.')}\nList is now 43 -> 56 -> NULL.\n\nNote: temp still holds the old address. It is a ${R('dangling pointer')} — set it to NULL if the function carries on.`); }
+  ];
+  function reset(){ s=0; render(-1,0); stage.innerHTML=chain([{v:32,tags:['head']},{v:43,tags:[]},{v:56,tags:[]}]); say(out,'Ready. List = 32 -> 43 -> 56 -> NULL'); bS.disabled=false; bS.textContent='Run next line'; }
+  bS.onclick=()=>{ if(s>=ST.length) return; ST[s](); render(s,s); s++; if(s>=ST.length){bS.disabled=true;bS.textContent='Done';} };
+  bR.onclick=reset; reset();
+})();
+
+/* ============================================================ LAB 14 — delete last */
+(function(){
+  const stage=$('#delLStage'), out=$('#delLOut'), code=$('#delLCode'),
+        bS=$('#delLStep'), bR=$('#delLReset'); if(!stage) return;
+  const render=makeStepper(code,[
+    'toDelete = head;',
+    '<span class="kw">while</span> (toDelete-&gt;next != NULL) {',
+    '    secondLast = toDelete;',
+    '    toDelete = toDelete-&gt;next;',
+    '}',
+    'secondLast-&gt;next = NULL;',
+    '<span class="fn">free</span>(toDelete);'
+  ]);
+  function st(td,sl,o){
+    o=o||{};
+    const n=[32,43,56].map((v,i)=>({v,
+      tags:(i===0?['head']:[]).concat(sl===i?['secondLast']:[]).concat(td===i?['toDelete']:[]),
+      cls:td===i?'hot':''}));
+    if(o.cut) return chain(n.slice(0,2))+floatRow([{v:56,tags:['toDelete'],cls:'doomed'}],'Detached — toDelete still holds it, ready to free');
+    if(o.gone) return chain([{v:32,tags:['head']},{v:43,tags:[]}]);
+    return chain(n);
+  }
+  let s=0;
+  const ST=[
+    {l:0,f:()=>{ stage.innerHTML=st(0,null); say(out,`toDelete starts at the head. secondLast is still ${Y('NULL')} — nobody is behind us yet.`); }},
+    {l:1,f:()=>say(out,`Check: toDelete->next holds 43's address, ${G('not NULL')} — so enter the loop.`)},
+    {l:2,f:()=>{ stage.innerHTML=st(0,0); say(out,`secondLast catches up to where toDelete is standing. ${Y('Both on node 32 for a moment')} — that is fine, it lasts one line.`); }},
+    {l:3,f:()=>{ stage.innerHTML=st(1,0); say(out,`toDelete steps forward to 43. secondLast stayed on 32.\n${G('Now they are one apart — that gap is the whole point.')}`); }},
+    {l:1,f:()=>say(out,`Check again: toDelete->next holds 56's address, ${G('not NULL')} — loop again.`)},
+    {l:2,f:()=>{ stage.innerHTML=st(1,1); say(out,`secondLast catches up to 43.`); }},
+    {l:3,f:()=>{ stage.innerHTML=st(2,1); say(out,`toDelete steps to 56 — the last node. secondLast is on 43.`); }},
+    {l:1,f:()=>say(out,`Check: toDelete->next is ${Y('NULL')} — ${R('condition false')}, exit the loop.\n\ntoDelete is on the node to remove; secondLast is on the one before it. Exactly where you need them.`)},
+    {l:5,f:()=>{ stage.innerHTML=st(2,1,{cut:true}); say(out,`43's blue cell is overwritten with NULL, so the list now ends at 43.\nNode 56 is off the list but ${G('toDelete still holds its address')}, so it can be freed.`); }},
+    {l:6,f:()=>{ stage.innerHTML=st(null,null,{gone:true}); say(out,`${G('Memory returned.')} Final list: 32 -> 43 -> NULL.\n\nWith only one pointer you would have reached 56 with no way to tell 43 to stop pointing at it.`); }}
+  ];
+  function reset(){ s=0; render(-1,0); stage.innerHTML=chain([{v:32,tags:['head']},{v:43,tags:[]},{v:56,tags:[]}]); say(out,'Ready. Goal: remove the last node (56).'); bS.disabled=false; bS.textContent='Run next line'; }
+  bS.onclick=()=>{ if(s>=ST.length) return; const x=ST[s]; x.f(); render(x.l,0); s++; if(s>=ST.length){bS.disabled=true;bS.textContent='Done';} };
+  bR.onclick=reset; reset();
+})();
+
+/* ============================================================ EXERCISE A — playlist */
+(function(){
+  const stage=$('#actStage'), out=$('#actOut'); if(!stage) return;
+  let L=[];
+  const G1=[21,34,55,89], G2=[13,21,34,55,89], G3=[13,21,34,55], G4=[21,34,55];
+  const eq=(a,b)=>a.length===b.length&&a.every((x,i)=>x===b[i]);
+  const draw=f=>stage.innerHTML=chain(L.map((v,i)=>({v,tags:i===0?['head']:[],cls:f===i?'fresh':''})),{emptyMsg:'head = NULL — no nodes yet'});
+  function val(){ const v=parseInt($('#actVal').value,10); if(isNaN(v)){ say(out,`${Y('Type a number in the value box first.')}`); return null; } return v; }
+  $('#actEnd').onclick=()=>{ const v=val(); if(v===null)return; L.push(v); draw(L.length-1); $('#actVal').value='';
+    say(out,`${K('insertEnd('+v+')')} — walked to the end with ${K('while (temp->next != NULL)')}, then hooked it on.\nList: ${G(L.join(' -> ')+' -> NULL')}`); };
+  $('#actFront').onclick=()=>{ const v=val(); if(v===null)return; L.unshift(v); draw(0); $('#actVal').value='';
+    say(out,`${K('insertFront('+v+')')} — newNode->next = head, then head = newNode.\nList: ${G(L.join(' -> ')+' -> NULL')}`); };
+  $('#actDelLast').onclick=()=>{ if(!L.length){ say(out,`${R('List is empty.')} deleteLast() should print "List is empty" and return.`); return; }
+    const g=L.pop(); draw(); say(out,`${K('deleteLast()')} — two pointers walked down, secondLast->next = NULL, free(${g}).\nList: ${G(L.length?L.join(' -> ')+' -> NULL':'empty')}`); };
+  $('#actDelFirst').onclick=()=>{ if(!L.length){ say(out,`${R('List is empty.')}`); return; }
+    const g=L.shift(); draw(); say(out,`${K('deleteFirst()')} — temp = head, head = head->next, free(${g}).\nList: ${G(L.length?L.join(' -> ')+' -> NULL':'empty')}`); };
+  $('#actReset').onclick=()=>{ L=[]; draw(); say(out,'Cleared. Task 1: build 21, 34, 55, 89 using insertEnd.'); };
+  $('#actCheck').onclick=()=>{
+    if(eq(L,G4)) say(out,`${G('All three tasks done.')} 21, 34, 55 — 13 went on the front and came off again, 89 came off the back.\n\nNow write the same three steps as C in your editor.`);
+    else if(eq(L,G3)) say(out,`${G('Tasks 1 and 2 done, and the last node is gone.')} One step left: deleteFirst() to remove 13.`);
+    else if(eq(L,G2)) say(out,`${G('Tasks 1 and 2 done.')} Now task 3: deleteLast() to remove 89, then deleteFirst().`);
+    else if(eq(L,G1)) say(out,`${G('Task 1 done.')} Now task 2: type 13 and press insertFront — it must go at the ${Y('front')}, not the end.`);
+    else if(eq(L,G2.slice(0,L.length))||eq(L,G1.slice(0,L.length))) say(out,`${Y('On track, keep going.')} Current: ${L.join(', ')||'empty'}`);
+    else say(out,`${Y('Not on the path.')} You have: ${L.join(', ')||'empty'}\nTarget after task 1: ${K('21, 34, 55, 89')}\nThen insertFront(13), then deleteLast(), then deleteFirst().`);
+  };
+  draw();
+})();
+
+/* ============================================================ EXERCISE B — find the bug */
+renderMCQ($('#bugQuiz'),[
+ {q:`<pre class="code" style="margin:8px 0"><span class="kw">void</span> addFront(<span class="kw">int</span> d){
+  <span class="kw">struct</span> node *n = malloc(<span class="kw">sizeof</span>(<span class="kw">struct</span> node));
+  n-&gt;data = d;
+  head = n;
+  n-&gt;next = head;
+}</pre>`,
+  c:['The malloc result is not checked for NULL','The last two lines are in the wrong order','<code>n-&gt;data</code> should be <code>n.data</code>','Nothing is wrong'],a:1,
+  e:'<code>head = n;</code> runs first, so the address of the old first node is lost forever. Then <code>n-&gt;next = head;</code> makes the node point at itself. The missing NULL check is a real flaw too, but this one destroys the list every single time.'},
+
+ {q:`<pre class="code" style="margin:8px 0"><span class="kw">struct</span> node *t = head;
+<span class="kw">while</span> (t != NULL) {
+  printf(<span class="st">"%d "</span>, t-&gt;next-&gt;data);
+  t = t-&gt;next;
+}</pre>`,
+  c:['The loop never terminates','It skips the first node','It crashes on the last node','<code>t</code> should be declared inside the loop'],a:2,
+  e:'On the final node <code>t-&gt;next</code> is NULL, so <code>t-&gt;next-&gt;data</code> asks NULL for its data — segmentation fault. Either print <code>t-&gt;data</code>, or change the condition to <code>t-&gt;next != NULL</code>.'},
+
+ {q:`<pre class="code" style="margin:8px 0"><span class="kw">void</span> delFirst(){
+  <span class="kw">struct</span> node *t = head;
+  free(t);
+  head = head-&gt;next;
+}</pre>`,
+  c:['<code>t</code> is never used','It frees before re-routing','It should use <code>t-&gt;next</code> not <code>head-&gt;next</code>','It leaks memory'],a:1,
+  e:'The node is handed back to the system, and the very next line reads <code>head-&gt;next</code> out of that freed memory. Re-route the pointers first, call <code>free</code> last — always.'},
+
+ {q:`<pre class="code" style="margin:8px 0"><span class="kw">void</span> addEnd(<span class="kw">int</span> d){
+  <span class="kw">struct</span> node *n = malloc(<span class="kw">sizeof</span>(<span class="kw">struct</span> node));
+  n-&gt;data = d;
+  <span class="kw">struct</span> node *t = head;
+  <span class="kw">while</span> (t-&gt;next != NULL) t = t-&gt;next;
+  t-&gt;next = n;
+}</pre>`,
+  c:['<code>n-&gt;next</code> is never set to NULL','The while loop stops one node too early','<code>t</code> should start at <code>head-&gt;next</code>','<code>free</code> is missing'],a:0,
+  e:"The new last node's <code>next</code> holds whatever garbage malloc left behind, so any print loop walks off into random memory. Add <code>n-&gt;next = NULL;</code>. This one also crashes on an empty list — a second bug worth spotting."},
+
+ {q:`<pre class="code" style="margin:8px 0"><span class="kw">int</span> count(){
+  <span class="kw">int</span> c = 0;
+  <span class="kw">while</span> (head != NULL) {
+    c++;
+    head = head-&gt;next;
+  }
+  <span class="kw">return</span> c;
+}</pre>`,
+  c:['It returns a number one too small','It walks with <code>head</code> instead of a temp pointer','<code>c</code> should start at 1','The condition should be <code>head-&gt;next != NULL</code>'],a:1,
+  e:'The count is correct — once. But the loop leaves <code>head</code> as NULL, so the entire list is now unreachable and leaked. Every node is still allocated and nothing points to any of them. Always walk with a copy: <code>struct node *t = head;</code>'},
+
+ {q:`<pre class="code" style="margin:8px 0"><span class="kw">void</span> push(<span class="kw">int</span> item){
+  <span class="kw">if</span> (top == MAX) {
+    printf(<span class="st">"Overflow"</span>);
+    <span class="kw">return</span>;
+  }
+  stack[++top] = item;
+}</pre>`,
+  c:['It should be <code>stack[top++]</code>','The overflow test should be <code>top == MAX-1</code>','<code>top</code> should start at 0','Nothing is wrong'],a:1,
+  e:'Valid indices run 0 to MAX-1. When <code>top</code> is MAX-1 the stack is already full, but this test lets one more through: <code>++top</code> makes it MAX and writes one slot past the end of the array. That is a buffer overflow, and it silently corrupts whatever variable happens to live next to the array.'}
+]);
+
+/* ============================================================ LAB 15 — linked-list stack */
+(function(){
+  const stage=$('#lsStage'), out=$('#lsOut'); if(!stage) return;
+  let S=[];
+  function draw(fresh){
+    stage.innerHTML=chain(S.map((v,i)=>({v,tags:i===0?['top']:[],cls:fresh&&i===0?'fresh':''})),
+      {emptyMsg:'top = NULL — the stack is empty'});
+  }
+  $('#lsPush').onclick=()=>{
+    const v=parseInt($('#lsVal').value,10);
+    if(isNaN(v)){ say(out,`${Y('Type a number to push.')}`); return; }
+    S.unshift(v); draw(true); $('#lsVal').value='';
+    say(out,`${K('n->next = top;')} then ${K('top = n;')}  — ${G(v)} is the new top.\nDepth: ${S.length}. ${Y('No overflow check needed')} — there is no MAX to hit.`);
+  };
+  $('#lsPop').onclick=()=>{
+    if(!S.length){ draw(); say(out,`${R('UNDERFLOW.')} top == NULL.\n\nThis is the only guard a linked stack needs. Compare that to the array version, which needed two.`); return; }
+    const v=S.shift(); draw();
+    say(out,`${K('item = top->data')} gave ${G(v)}, then ${K('top = top->next;')} and ${K('free(temp);')}.\nDepth: ${S.length}. ${Y('The memory went back to the system')} — an array stack could never shrink like that.`);
+  };
+  $('#lsReset').onclick=()=>{ S=[]; draw(); say(out,'top = NULL &nbsp;&nbsp;(stack is empty)'); };
+  draw();
+})();
+
+/* ============================================================ SELF-CHECK — 20 questions */
+(function(){
+  const host=$('#quizHost'), score=$('#quizScore'); if(!host) return;
+  let done=0, right=0;
+  renderMCQ(host,[
+   {q:'Which structure removes the <b>most recently</b> added item first?',c:['Queue','Stack','Both','Neither'],a:1,
+    e:'A stack is LIFO. Like the plate pile: the last plate on is the first plate off.'},
+   {q:'In an array stack, what does <code>top == -1</code> mean?',c:['The stack is full','The stack is empty','An error occurred','top is on the first element'],a:1,
+    e:'&minus;1 is not a valid index, so it is the standard way to say "nothing has been pushed". Popping in this state is underflow.'},
+   {q:'Why does <code>push</code> do <code>++top</code> <i>before</i> writing?',c:['Because C requires it','Because <code>top</code> points at the last item stored, not the next free slot','To avoid overflow','It does not matter which order'],a:1,
+    e:'<code>top</code> names the most recent item. If you wrote first you would overwrite that item, and if top pointed at the free slot then <code>peek()</code> would return garbage.'},
+   {q:'A stack of size 5 has 5 items. You call <code>push(9)</code>. What should happen?',c:['The oldest item is discarded to make room','Overflow is reported and nothing is written','The array grows automatically','item 9 overwrites the top'],a:1,
+    e:'An array stack has a fixed ceiling and no authority to discard your data. It reports overflow. Only the linked-list version can grow.'},
+   {q:'A text editor checks your <code>{ }</code> brackets. Which structure does it use, and why?',c:['A queue, because brackets are processed in order','A stack, because the bracket you must close next is the most recently opened one','An array, because brackets are indexed','A linked list, because files vary in size'],a:1,
+    e:'Nesting is inherently LIFO. Open: push. Close: pop and check it matches. Leftovers on the stack at the end mean something was never closed.'},
+   {q:'Push A, B, C then pop twice. What is left on the stack?',c:['A','C','A and B','Nothing'],a:0,
+    e:'C comes off first, then B. A went in first and is at the bottom, so it comes out last — if at all.'},
+   {q:'In a queue, which end are items removed from?',c:['The rear','The front','Either end','The middle'],a:1,
+    e:'Add at the rear, remove from the front. That is what makes it FIFO, like a bank line.'},
+   {q:'Why does a queue need two markers when a stack needs one?',c:['Queues hold more data','Adding and removing happen at opposite ends, so each end needs its own marker','To detect overflow','Because arrays are two-dimensional'],a:1,
+    e:'A stack adds and removes at the same end, so one marker tracks both. A queue works at two different ends and has to track both independently.'},
+   {q:'A linear queue with MAX 8 has front = 5 and rear = 7. You enqueue. What happens?',c:['It works, rear becomes 8','It reports "full" even though slots 0 to 4 are empty','rear wraps around to 0','front moves back to 0'],a:1,
+    e:'This is the drift problem. rear == MAX-1 triggers the full check, while five perfectly good slots sit wasted at the start. Only a circular queue reuses them.'},
+   {q:'What does <code>rear = (rear + 1) % MAX;</code> achieve?',c:['It makes the queue bigger','It wraps rear back to 0 when it runs off the end','It counts the items','It prevents underflow'],a:1,
+    e:'Modulo turns a straight array into a circle. When rear is MAX-1, adding 1 gives MAX, and MAX % MAX is 0 — back to the start.'},
+   {q:'In a circular queue, why is a <code>count</code> variable useful?',c:['To speed the code up','Because <code>front == rear</code> happens when the queue is both full and empty, so the markers alone cannot tell you which','To store the maximum size','It is not — it is redundant'],a:1,
+    e:'In a circle the two markers meet in both states. A count removes the ambiguity: <code>count == 0</code> is empty, <code>count == MAX</code> is full.'},
+   {q:'Which one genuinely needs a queue rather than a stack?',c:['The browser back button','Undo in a text editor','A printer serving jobs in arrival order','Checking nested brackets'],a:2,
+    e:'The printer is making a fairness promise: first submitted, first printed. That is FIFO. The other three all want the most recent item first.'},
+   {q:'What does the variable <code>head</code> actually hold?',c:['The first value in the list','The number of nodes','The address of the first node','A copy of the first node'],a:2,
+    e:'head is a pointer — it holds an address, not data. That is why you need <code>head-&gt;data</code> to get the value.'},
+   {q:'What is the value of <code>next</code> in the last node of a list?',c:['0','NULL','The address of head','Whatever malloc left there'],a:1,
+    e:'NULL marks the end of the list, exactly as \\0 marks the end of a string. Forgetting to set it is why option D is such a common bug.'},
+   {q:'Which order correctly inserts a new node at the front?',c:['<code>head = newNode; newNode-&gt;next = head;</code>','<code>newNode-&gt;next = head; head = newNode;</code>','<code>newNode-&gt;next = NULL; head = newNode;</code>','Either A or B works'],a:1,
+    e:'Attach before you move. Option A loses the address of the old first node and leaves the new node pointing at itself.'},
+   {q:'You need a loop that stops <b>on</b> the last node. Which condition?',c:['<code>while (temp != NULL)</code>','<code>while (temp-&gt;next != NULL)</code>','<code>while (temp-&gt;data != NULL)</code>','<code>while (head != NULL)</code>'],a:1,
+    e:'<code>temp != NULL</code> walks one step too far and ends holding nothing. <code>temp-&gt;next != NULL</code> stops while temp still holds the last node.'},
+   {q:'Why does deleting the last node of a singly linked list need <b>two</b> pointers?',c:['To make the loop faster','Because you must set the second-to-last node\u2019s next to NULL, and you cannot travel backwards','Because free() takes two arguments','To avoid a memory leak'],a:1,
+    e:'A singly linked list only points forward. Once you are on the last node there is no route back, so a second pointer walks one step behind you the whole way.'},
+   {q:'What is wrong with <code>free(temp); head = temp-&gt;next;</code>?',c:['Nothing','<code>free</code> must come last, because temp\u2019s memory is no longer yours to read','<code>head</code> should be freed instead','<code>temp</code> should be an int'],a:1,
+    e:'After free() the memory belongs to the system again. Reading <code>temp-&gt;next</code> from it is undefined behaviour — it may work today and corrupt something tomorrow. Re-route first, free last.'},
+   {q:'Which is a genuine advantage of a linked list over an array?',c:['Faster access to the 5th element','Uses less memory per item','It can grow and shrink while the program runs','Elements sit side by side in memory'],a:2,
+    e:'Nodes are allocated one at a time at runtime, so there is no fixed ceiling. It is worse at the other three — random access is slow and every node also costs a pointer.'},
+   {q:'A stack built from a linked list needs no overflow check. Why not?',c:['Because pop is faster','Because there is no MAX — it grows until the machine itself runs out of memory','Because linked lists cannot be full','Because push never fails'],a:1,
+    e:'The ceiling came from <code>#define MAX</code>, not from the idea of a stack. Remove the array and the ceiling goes with it. Push can still fail if malloc returns NULL, which is why that check stays.'}
+  ],ok=>{
+    done++; if(ok) right++;
+    let m=`Answered ${done} of 20 — ${right} correct.`;
+    if(done===20) m += right===20 ? `  ${G('Full marks. Go write the eight functions from memory.')}`
+      : right>=15 ? `  ${G('Solid.')} Re-read the sections behind the ones you missed.`
+      : right>=10 ? `  ${Y('Halfway.')} Redo Lab 10 and Lab 14 — those two carry the most weight.`
+      : `  ${Y('Worth another pass from the top.')} Do the labs with the buttons rather than just reading, especially Labs 2, 7 and 10.`;
+    say(score,m);
+  });
+})();
+
+/* ============================================================ nav + progress */
+(function(){
+  const bar=$('#progbar'), links=$$('#jump a'), secs=$$('main section');
+  function upd(){
+    const h=document.documentElement;
+    bar.style.width=(h.scrollTop/Math.max(1,h.scrollHeight-h.clientHeight)*100)+'%';
+    let cur=null;
+    secs.forEach(s=>{ if(s.getBoundingClientRect().top<=140) cur=s.id; });
+    links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur));
+  }
+  addEventListener('scroll',upd,{passive:true}); upd();
+})();
+})();
+</script>
+</body>
+</html>
