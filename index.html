@@ -397,6 +397,72 @@ footer{border-top:2px solid var(--ink);padding:30px 0 60px;font-size:14.5px;colo
   pre.code{font-size:12px;padding:13px 12px}
   .readout{font-size:12.5px}
 }
+
+/* ---- memory pool + race panels ---- */
+.ram{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:0 auto;max-width:440px}
+@media(min-width:760px){.ram{grid-template-columns:repeat(12,1fr);max-width:100%}}
+.rcell{
+  border:2px solid var(--grid);border-radius:3px;height:64px;background:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:var(--mono);font-weight:700;font-size:15px;position:relative;
+  transition:background .2s,border-color .2s;
+}
+.rcell .addr{position:absolute;top:2px;left:4px;font-size:9px;font-weight:400;color:var(--ink3)}
+.rcell.other{background:repeating-linear-gradient(45deg,#EFEFEF 0 5px,#E1E1E1 5px 10px);color:var(--ink3);border-color:#D2D2D2;font-size:10px;font-weight:400}
+.rcell.arr{background:var(--live-soft);border-color:var(--live)}
+.rcell.nd{background:var(--wire-soft);border-color:var(--wire)}
+.rcell .nx{font-size:10px;font-weight:700;color:var(--wire);margin-top:2px}
+.rcell.fresh2{animation:pop .3s cubic-bezier(.2,.9,.3,1.4)}
+.rcell .hd{position:absolute;top:-9px;right:-4px;font-family:var(--ui);font-size:9px;font-weight:700;background:var(--wire);color:#fff;padding:1px 5px;border-radius:3px}
+.ramkey{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:14px;font-family:var(--ui);font-size:12px;color:var(--ink2)}
+.ramkey i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px;border:2px solid}
+.race{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+@media(max-width:760px){.race{grid-template-columns:1fr}}
+.racepane{border:2px solid var(--ink);border-radius:var(--r);overflow:hidden;background:#fff}
+.racepane .rh{padding:8px 13px;font-family:var(--ui);font-size:13px;font-weight:600;background:var(--ink);color:#fff}
+.racepane.win .rh{background:var(--ok)}
+.racepane .rb{padding:14px 13px;min-height:172px}
+.counter{font-family:var(--ui);font-weight:700;font-size:30px;line-height:1.1}
+.counter small{font-family:var(--ui);font-size:12px;font-weight:600;color:var(--ink3);display:block;letter-spacing:.03em}
+.arow{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px;min-height:46px}
+.acell{
+  width:44px;height:42px;border:2px solid var(--ink);border-radius:3px;background:#fff;
+  display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:14px;
+  transition:transform .16s,background .16s;
+}
+.acell.moving{background:var(--bad-soft);border-color:var(--bad);transform:translateY(-7px)}
+.acell.newly{background:var(--ok-soft);border-color:var(--ok)}
+.acell.hotread{background:var(--live-soft);border-color:var(--live)}
+.acell.gap{border-style:dashed;border-color:var(--grid);background:transparent}
+.minichain .node .cell{min-width:30px;height:34px;font-size:12px}
+.minichain .node .cell.next{min-width:20px}
+.minichain .wire{width:18px;height:34px}
+.minichain .wire::after{border-width:5px}
+.minichain .nullbox{height:34px;padding:8px 5px;font-size:9px}
+.minichain .tags{min-height:24px;padding-bottom:3px}
+.minichain .tag{font-size:9.5px;padding:1px 5px}
+.minichain .tag::after{border-width:4px}
+.minichain .chain{min-height:62px}
+.scoreline{font-family:var(--ui);font-size:14px;font-weight:600;text-align:center;padding:10px;border-radius:var(--r);background:var(--paper);margin-top:6px}
+
+/* ---- doubly + circular ---- */
+.node .cell.prev{background:var(--live-soft);border-right:2px solid var(--ink);min-width:34px;display:flex;align-items:center;justify-content:center}
+.node .cell.prev::after{content:"";width:9px;height:9px;border-radius:50%;background:var(--live)}
+.node .cell.prev.nul::after,.node .cell.next.nul::after{background:none;width:auto;height:auto;content:"\2205";color:var(--null);font-family:var(--mono);font-size:13px;font-weight:700}
+.wire2{flex:none;width:50px;height:50px;display:flex;flex-direction:column;justify-content:center;gap:9px}
+.w-fwd,.w-bak{height:3px;position:relative}
+.w-fwd{background:var(--wire)}
+.w-fwd::after{content:"";position:absolute;right:0;top:50%;transform:translateY(-50%);border:6px solid transparent;border-left-color:var(--wire);border-right:0}
+.w-bak{background:var(--live)}
+.w-bak::after{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);border:6px solid transparent;border-right-color:var(--live);border-left:0}
+.circwrap{display:inline-block;position:relative;padding-bottom:40px}
+.loopline{position:absolute;left:28px;right:34px;bottom:10px;height:24px;border:3px solid var(--wire);border-top:none;border-radius:0 0 7px 7px}
+.loopline span{position:absolute;left:50%;transform:translateX(-50%);bottom:-10px;background:var(--paper);padding:0 9px;font-family:var(--ui);font-size:11px;font-weight:700;color:var(--wire);white-space:nowrap}
+.loopline::before{content:"";position:absolute;left:-3px;top:0;transform:translateY(-100%);border:7px solid transparent;border-bottom-color:var(--wire);border-top:0}
+.spin{animation:spin360 .9s linear}
+@keyframes spin360{to{transform:rotate(360deg)}}
+.warnpulse{animation:wp .5s ease-in-out 3}
+@keyframes wp{50%{background:var(--bad-soft)}}
 footer{margin-top:40px}
 </style>
 </head>
@@ -411,10 +477,12 @@ footer{margin-top:40px}
       <a href="#queue">Queues</a>
       <a href="#circular">Circular queues</a>
       <a href="#wall">The size wall</a>
+      <a href="#versus">Array vs list</a>
       <a href="#ll">Linked lists</a>
       <a href="#front">Insert at front</a>
       <a href="#walk">Traversal</a>
       <a href="#del">Deleting</a>
+      <a href="#variants">Doubly &amp; circular</a>
       <a href="#practice">Practice</a>
       <a href="#capstone">Putting it together</a>
       <a href="#quiz">Self-check</a>
@@ -867,9 +935,153 @@ front = (front + 1) % MAX;</pre>
   </div>
 </div></section>
 
+<!-- ============ ARRAY VS LINKED LIST ============ -->
+<section id="versus"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">6</span><h2>Array vs linked list, side by side</h2></div>
+  <div class="col">
+    <p>Before any code, three demonstrations. Each one sets the two structures the same task and lets you watch them do it. Two of them the linked list wins easily. One of them it loses badly &mdash; and that one matters just as much, because a structure that won everything wouldn't need an alternative.</p>
+    <p>To make this concrete, pretend your whole computer has <strong>twelve memory slots</strong>. Real machines have billions, but the rules are identical, and twelve fits on a screen.</p>
+
+    <h3>Demo A &mdash; the shape of the space you need</h3>
+    <p>Here's the rule that explains almost everything: an array must live in <strong>one unbroken run</strong> of slots. Ten items means ten slots <em>in a row</em>, because the computer finds <code>a[7]</code> by starting at the first slot and counting forward seven. Break the run and that arithmetic stops working.</p>
+    <p>Linked nodes have no such rule. Each node can live anywhere, because each one carries the address of the next.</p>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">DEMO A</span><h4>Twelve slots of memory. Store 5 items.</h4></div>
+      <div class="lab-body">
+        <p>Start with empty memory and try both. Then press <strong>Other programs run</strong> &mdash; that's your browser, the OS, everything else grabbing memory the way it really does &mdash; and try both again.</p>
+        <div class="row">
+          <button class="btn sm" id="ramArr" style="background:var(--live);border-color:var(--live)">Store 5 as an array</button>
+          <button class="btn sm blue" id="ramNode">Store 5 as linked nodes</button>
+          <button class="btn ghost sm" id="ramFrag">Other programs run</button>
+          <span class="spacer"></span>
+          <button class="btn ghost sm" id="ramReset">Clear memory</button>
+        </div>
+        <div class="stage">
+          <div class="ram" id="ramGrid"></div>
+          <div class="ramkey">
+            <span><i style="background:#fff;border-color:var(--grid)"></i>free</span>
+            <span><i style="background:#E5E5E5;border-color:#D2D2D2"></i>used by other programs</span>
+            <span><i style="background:var(--live-soft);border-color:var(--live)"></i>array</span>
+            <span><i style="background:var(--wire-soft);border-color:var(--wire)"></i>linked node</span>
+          </div>
+        </div>
+        <div class="readout" id="ramOut">Memory is empty. Try storing 5 items each way.</div>
+      </div>
+    </div>
+
+    <div class="note warn"><span class="note-t">The result you should have just seen</span>
+      <p>After fragmentation there are <strong>nine free slots</strong> &mdash; nearly enough room for a list of nine. But the array still fails, because no five of them are next to each other. The nodes fit without complaint.</p>
+      <p>This is a real and daily problem, and it has a name: <em class="term">fragmentation</em>. Memory ends up full of holes. Arrays need one big hole; linked structures are happy with lots of small ones.</p>
+    </div>
+
+    <h3>Demo B &mdash; adding something at the front</h3>
+    <p>Same eight values in both structures. Put a new value at the <strong>front</strong>. Watch the counters.</p>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">DEMO B</span><h4>Insert 5 at the front &mdash; count the work</h4></div>
+      <div class="lab-body">
+        <div class="race">
+          <div class="racepane" id="paneArr">
+            <div class="rh">Array</div>
+            <div class="rb">
+              <div class="arow" id="bArr"></div>
+              <div class="counter" id="bArrN">0<small>DATA MOVES</small></div>
+              <p class="mini" id="bArrMsg" style="margin:10px 0 0">Every element has to shuffle right to open a gap at index 0.</p>
+            </div>
+          </div>
+          <div class="racepane" id="paneLL">
+            <div class="rh">Linked list</div>
+            <div class="rb">
+              <div class="minichain" id="bLL"></div>
+              <div class="counter" id="bLLN">0<small>POINTER WRITES</small></div>
+              <p class="mini" id="bLLMsg" style="margin:10px 0 0">Nothing moves. Only two arrows change.</p>
+            </div>
+          </div>
+        </div>
+        <div class="row"><button class="btn blue" id="bRun">Insert 5 at the front of both</button><button class="btn ghost sm" id="bReset">Reset</button></div>
+        <div class="readout" id="bOut">Press Run and watch both sides at once.</div>
+      </div>
+    </div>
+
+    <div class="note"><span class="note-t">Now scale it up, because this is the whole point</span>
+      <p>With 8 items the array did 8 moves and the list did 2 writes. Hardly worth arguing about. But look at what happens as the data grows:</p>
+      <table class="cmp" style="margin:12px 0 0">
+        <tr><th>Items in the structure</th><th>Array: data moves</th><th>Linked list: pointer writes</th></tr>
+        <tr><td>8</td><td>8</td><td>2</td></tr>
+        <tr><td>1,000</td><td>1,000</td><td>2</td></tr>
+        <tr><td>1,000,000</td><td>1,000,000</td><td>2</td></tr>
+      </table>
+      <p style="margin-top:12px">The array's cost <strong>grows with the size of the data</strong>. The linked list's cost <strong>doesn't move at all</strong> &mdash; two writes, forever, no matter how big the list gets. That is not a small optimisation. It is a different category of behaviour.</p>
+    </div>
+
+    <h3>Demo C &mdash; now the array gets its revenge</h3>
+    <p>Fair is fair. Ask both structures for <strong>item number 6</strong>.</p>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">DEMO C</span><h4>Fetch item 6 &mdash; count the work again</h4></div>
+      <div class="lab-body">
+        <div class="race">
+          <div class="racepane" id="paneArr2">
+            <div class="rh">Array</div>
+            <div class="rb">
+              <div class="arow" id="cArr"></div>
+              <div class="counter" id="cArrN">0<small>STEPS</small></div>
+              <p class="mini" id="cArrMsg" style="margin:10px 0 0">Jump straight there with one calculation.</p>
+            </div>
+          </div>
+          <div class="racepane" id="paneLL2">
+            <div class="rh">Linked list</div>
+            <div class="rb">
+              <div class="minichain" id="cLL"></div>
+              <div class="counter" id="cLLN">0<small>STEPS</small></div>
+              <p class="mini" id="cLLMsg" style="margin:10px 0 0">No shortcuts. Follow the arrows from the start.</p>
+            </div>
+          </div>
+        </div>
+        <div class="row"><button class="btn blue" id="cRun">Fetch item 6 from both</button><button class="btn ghost sm" id="cReset">Reset</button></div>
+        <div class="readout" id="cOut">Press Run. This time watch the linked list struggle.</div>
+      </div>
+    </div>
+
+    <div class="note analogy"><span class="note-t">Why the array can jump and the list cannot</span>
+      <p>An array is a <strong>street of identical houses, numbered from zero.</strong> To reach number 6 you don't walk past the first five &mdash; you know house 6 is six house-widths from the start, so you go straight there. One calculation: <code>start + 6 &times; size</code>. That works only because the houses are the same size and all in a row.</p>
+      <p>A linked list is the <strong>scavenger hunt</strong>. The cards are scattered all over campus and the only way to learn where card 6 is, is to read card 5 &mdash; and to find card 5 you must read card 4. There is no formula, because there is no pattern to the addresses. That is the exact price you paid for being allowed to store them anywhere.</p>
+    </div>
+
+    <h3>So which one, when?</h3>
+    <p>Neither wins. They fail in opposite directions, and choosing well is the actual skill:</p>
+  </div>
+  <table class="cmp">
+    <tr><th>The job</th><th>Array</th><th>Linked list</th></tr>
+    <tr><td>Needs free memory shaped like</td><td>One unbroken run</td><td>Any scattered slots</td></tr>
+    <tr><td>Get item number <i>n</i></td><td><strong>One calculation</strong></td><td><i>n</i> steps down the chain</td></tr>
+    <tr><td>Insert or delete at the front</td><td>Shift every element</td><td><strong>Two pointer writes</strong></td></tr>
+    <tr><td>Insert or delete at the back</td><td><strong>Instant</strong> (if space remains)</td><td>Walk the whole list to find it</td></tr>
+    <tr><td>Size decided</td><td>When you write the code</td><td><strong>While the program runs</strong></td></tr>
+    <tr><td>Runs out of room when</td><td>It hits <code>MAX</code></td><td>The machine itself runs out</td></tr>
+    <tr><td>Memory cost per item</td><td><strong>Just the data</strong></td><td>The data plus a pointer</td></tr>
+  </table>
+  <div class="col">
+    <div class="note win"><span class="note-t">One sentence to keep</span>
+      <p><strong>Arrays are fast to reach into but rigid. Linked lists are flexible but slow to reach into.</strong> Pick based on whether your program does more <em>looking things up</em> or more <em>growing and editing</em>.</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind solo">DECIDE</span><h4>Four real situations. Which structure?</h4></div>
+      <div class="lab-body">
+        <p>No right answer is obvious from the wording alone &mdash; work out what the program actually spends its time doing.</p>
+        <div id="chooseQuiz"></div>
+      </div>
+    </div>
+
+    <p>Everything from here on is about paying for that flexibility. The cost is pointers: every node has to carry the address of the next one, and <strong>you</strong> have to keep those addresses correct. That's the rest of the guide.</p>
+  </div>
+</div></section>
+
 <!-- ============ LINKED LISTS ============ -->
 <section id="ll"><div class="wrap">
-  <div class="sec-head"><span class="sec-num">6</span><h2>Linked lists</h2></div>
+  <div class="sec-head"><span class="sec-num">7</span><h2>Linked lists</h2></div>
   <div class="col">
     <h3>The scavenger hunt</h3>
     <p>Forget code for a minute. Picture a scavenger hunt around campus.</p>
@@ -944,7 +1156,7 @@ newNode = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<
 
 <!-- ============ INSERT AT FRONT ============ -->
 <section id="front"><div class="wrap">
-  <div class="sec-head"><span class="sec-num">7</span><h2>Insert at the front &mdash; where the order matters</h2></div>
+  <div class="sec-head"><span class="sec-num">8</span><h2>Insert at the front &mdash; where the order matters</h2></div>
   <div class="col">
     <p>You have a list. You want a new node at the very beginning. Two pointers must change:</p>
     <ol>
@@ -1012,7 +1224,7 @@ newNode = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<
 
 <!-- ============ TRAVERSAL ============ -->
 <section id="walk"><div class="wrap">
-  <div class="sec-head"><span class="sec-num">8</span><h2>Traversal &mdash; walking the list</h2></div>
+  <div class="sec-head"><span class="sec-num">9</span><h2>Traversal &mdash; walking the list</h2></div>
   <div class="col">
     <p>Everything else you will ever do to a linked list &mdash; printing, searching, counting, inserting at the end, deleting the last node &mdash; begins by walking down it. The walk is always the same three pieces:</p>
 <pre class="code"><span class="kw">void</span> <span class="fn">display</span>()
@@ -1094,7 +1306,7 @@ newNode = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<
 
 <!-- ============ DELETING ============ -->
 <section id="del"><div class="wrap">
-  <div class="sec-head"><span class="sec-num">9</span><h2>Deleting nodes</h2></div>
+  <div class="sec-head"><span class="sec-num">10</span><h2>Deleting nodes</h2></div>
   <div class="col">
     <p>Deleting is two jobs, always in this order: <strong>re-route the arrows around the node</strong>, then <strong>hand the memory back</strong> with <code>free()</code>. Do it the other way round and you are following a pointer into memory that is no longer yours.</p>
 
@@ -1165,9 +1377,182 @@ newNode = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<
   </div>
 </div></section>
 
+<!-- ============ VARIANTS ============ -->
+<section id="variants"><div class="wrap">
+  <div class="sec-head"><span class="sec-num">11</span><h2>Doubly and circular linked lists</h2></div>
+  <div class="col">
+    <p>Everything so far has been a <strong>singly linked list</strong>: one arrow per node, pointing forward, ending at <code>NULL</code>. Change what that arrow situation looks like and you get two more structures &mdash; each solving a problem the singly linked list handles badly.</p>
+    <p>You have already felt both problems in this guide, which is why they're here rather than in a footnote.</p>
+
+    <h3>Singly linked &mdash; the limitation, restated</h3>
+    <p>Remember Lab 14, deleting the last node. You had to drag a second pointer behind you the whole way down the list, for one reason: <strong>once you're standing on a node, there is no way back</strong>. The arrows only point one way. To find out what came before a node, you must start again from <code>head</code>.</p>
+
+    <h3>The doubly linked list</h3>
+    <p>The fix is almost insultingly simple: give every node a <strong>second pointer</strong> that points backwards.</p>
+<pre class="code"><span class="kw">struct</span> node {
+    <span class="kw">int</span>  data;
+    <span class="kw">struct</span> node *next;   <span class="cm">// the node in front</span>
+    <span class="kw">struct</span> node *prev;   <span class="cm">// the node behind      &lt;-- the only new line</span>
+};</pre>
+    <p>Now the list is a chain you can walk in either direction. The first node's <code>prev</code> is <code>NULL</code> and the last node's <code>next</code> is <code>NULL</code> &mdash; both ends are marked.</p>
+
+    <div class="note analogy"><span class="note-t">Train carriages</span>
+      <p>A singly linked list is a line of carriages where each one is coupled to the carriage in front, and the coupling only works in that direction. Standing in carriage 4, you can walk forward, but there is no door behind you.</p>
+      <p>A doubly linked list couples every carriage at <strong>both ends</strong>. Now you can walk to the front or the back from anywhere. That's the whole idea. Everything else is bookkeeping.</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 15</span><h4>Walk both ways</h4></div>
+      <div class="lab-body">
+        <p>Blue arrows on top are <code>next</code>. Amber arrows underneath are <code>prev</code>. Move <span style="color:var(--live);font-weight:600">temp</span> in either direction &mdash; and notice the Back button is something a singly linked list simply cannot offer.</p>
+        <div class="stage"><div id="dWalk"></div></div>
+        <div class="row">
+          <button class="btn sm" id="dPrev" style="background:var(--live);border-color:var(--live)">&larr; temp = temp-&gt;prev</button>
+          <button class="btn blue sm" id="dNext">temp = temp-&gt;next &rarr;</button>
+          <span class="spacer"></span>
+          <button class="btn ghost sm" id="dReset">Back to head</button>
+        </div>
+        <div class="readout" id="dOut"></div>
+      </div>
+    </div>
+
+    <div class="note warn"><span class="note-t">What the second pointer costs you</span>
+      <p>Two things, and both show up in exams.</p>
+      <p><strong>Memory.</strong> Every node now carries an extra address. On a list of a million small nodes that is a million extra pointers of overhead, for nothing but convenience.</p>
+      <p><strong>Twice the arrows to get right.</strong> Inserting into a singly linked list touches 2 pointers. Inserting into a doubly linked list touches <strong>4</strong>, and forgetting one leaves the list walkable forwards but broken backwards &mdash; a bug that hides until someone presses Back.</p>
+    </div>
+
+    <h4>Insert at the front, doubly</h4>
+    <p>Same principle as before &mdash; attach before you move &mdash; but there are now four assignments, and one of them needs a guard.</p>
+<pre class="code"><span class="kw">void</span> <span class="fn">insertFront</span>(<span class="kw">int</span> data)
+{
+    <span class="kw">struct</span> node *n = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="kw">struct</span> node));
+    n-&gt;data = data;
+
+    n-&gt;next = head;                    <span class="cm">// 1. new node points forward at the old first</span>
+    n-&gt;prev = NULL;                    <span class="cm">// 2. nothing is before the new first node</span>
+
+    <span class="kw">if</span> (head != NULL)                  <span class="cm">//    guard: the list might be empty!</span>
+        head-&gt;prev = n;                <span class="cm">// 3. old first node points back at the new one</span>
+
+    head = n;                          <span class="cm">// 4. move head, last as always</span>
+}</pre>
+    <p class="mini">Line 3 is the one people forget. Without it the forward chain is perfect and the backward chain is broken, so the list prints correctly and then crashes the first time anyone walks it in reverse.</p>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind solo">LAB 16</span><h4>Order the four statements</h4></div>
+      <div class="lab-body">
+        <p>Drag them into a working order. More than one order technically works here &mdash; but only one keeps the rule you learned in Lab 10, and the checker will tell you which line has to come last and why.</p>
+        <div class="dnd" data-order-game="dblOrder">
+          <div>
+            <div class="pane-t">Statements</div>
+            <div class="pool" data-pool>
+              <div class="chip" draggable="true" data-id="d">head = n;</div>
+              <div class="chip" draggable="true" data-id="a">n-&gt;next = head;</div>
+              <div class="chip" draggable="true" data-id="c">if (head != NULL) head-&gt;prev = n;</div>
+              <div class="chip" draggable="true" data-id="b">n-&gt;prev = NULL;</div>
+            </div>
+          </div>
+          <div>
+            <div class="pane-t">Your order</div>
+            <div class="slots">
+              <div class="dropslot" data-slot="0"><span class="idx">1</span></div>
+              <div class="dropslot" data-slot="1"><span class="idx">2</span></div>
+              <div class="dropslot" data-slot="2"><span class="idx">3</span></div>
+              <div class="dropslot" data-slot="3"><span class="idx">4</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="row"><button class="btn blue" id="dblCheck">Check order</button><button class="btn ghost sm" id="dblReset">Reset</button></div>
+        <div class="readout" id="dblOut">Place all four statements, then check.</div>
+      </div>
+    </div>
+
+    <h4>Where doubly linked lists actually run</h4>
+    <div class="grid2">
+      <div class="slab"><h4>Browser history</h4><p class="mini">Back and Forward are <code>prev</code> and <code>next</code>. A singly linked list could give you one of those buttons. It could never give you both.</p></div>
+      <div class="slab"><h4>Undo and redo</h4><p class="mini">A plain undo stack cannot redo, because popping throws the action away. A doubly linked list of edits lets the cursor move back and forward through history without losing anything.</p></div>
+      <div class="slab"><h4>Music and video players</h4><p class="mini">Next track and previous track, plus removing a song from the middle of the queue without walking from the start to find what preceded it.</p></div>
+      <div class="slab"><h4>Text editors</h4><p class="mini">A line of text as a chain of characters. The cursor moves left and right one node at a time &mdash; and deleting needs the node before, which is right there.</p></div>
+    </div>
+
+    <h3>The circular linked list</h3>
+    <p>Different change, different problem. Take a singly linked list and, instead of the last node pointing at <code>NULL</code>, point it <strong>back at the head</strong>.</p>
+<pre class="code"><span class="cm">/* the struct is unchanged — only the last node's next is different */</span>
+lastNode-&gt;next = head;    <span class="cm">// instead of NULL</span></pre>
+    <p>There is now no end. Keep following <code>next</code> and you come back around to where you started, forever.</p>
+
+    <div class="note analogy"><span class="note-t">Passing a plate around a table</span>
+      <p>Four people at a table pass a dish to the person on their left. When it reaches the last person they pass it back to the first. Nobody is "the end" &mdash; the last seat simply connects to the first, and the dish can go round all night.</p>
+      <p>That is exactly what a circular list is for: things that <strong>cycle</strong> rather than things that <strong>finish</strong>.</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 17</span><h4>Why your normal loop condition breaks</h4></div>
+      <div class="lab-body">
+        <p>Here is the trap. Run the familiar traversal on a circular list and watch what happens.</p>
+        <div class="row">
+          <button class="btn ghost sm circcond on blue" data-c="bad">while (temp != NULL)</button>
+          <button class="btn ghost sm circcond" data-c="good">do { ... } while (temp != head)</button>
+        </div>
+        <div class="stage"><div id="cWalkStage"></div></div>
+        <div class="row">
+          <button class="btn blue" id="cWalkStep">Step</button>
+          <button class="btn ghost sm" id="cWalkReset">Reset</button>
+        </div>
+        <div class="readout" id="cWalkOut"></div>
+      </div>
+    </div>
+
+    <div class="note warn"><span class="note-t">The rule for circular lists</span>
+      <p><code>NULL</code> never appears, so <code>while (temp != NULL)</code> <strong>never becomes false</strong>. The program does not crash &mdash; it just prints forever, which in an exam is worse, because it looks like it should work.</p>
+      <p>You stop when you get back to where you started instead. And it must be a <code>do...while</code>, not a <code>while</code>: on entry <code>temp</code> already equals <code>head</code>, so a plain <code>while (temp != head)</code> would exit immediately and print nothing.</p>
+<pre class="code" style="margin-bottom:0"><span class="kw">struct</span> node *temp = head;
+<span class="kw">if</span> (head == NULL) <span class="kw">return</span>;        <span class="cm">// empty list still needs its guard</span>
+
+<span class="kw">do</span> {
+    <span class="fn">printf</span>(<span class="st">"%d "</span>, temp-&gt;data);
+    temp = temp-&gt;next;
+} <span class="kw">while</span> (temp != head);          <span class="cm">// stop when we come back around</span></pre>
+    </div>
+
+    <h4>Where circular lists actually run</h4>
+    <div class="grid2">
+      <div class="slab"><h4>Round-robin CPU scheduling</h4><p class="mini">The OS gives each process a slice of time then moves to the next. After the last process it must return to the first &mdash; and it never stops. The process list has no natural end, so it shouldn't have a <code>NULL</code>.</p></div>
+      <div class="slab"><h4>Turn order in games</h4><p class="mini">Four players, play passes round the table and back to player 1. A circular list means the code never needs an "if we ran out of players, start again" special case &mdash; the structure handles it.</p></div>
+      <div class="slab"><h4>Image carousels and slideshows</h4><p class="mini">Press Next on the final photo and you land on the first. Make it circular <em>and</em> doubly linked and Previous wraps backwards too.</p></div>
+      <div class="slab"><h4>Circular buffers</h4><p class="mini">The keyboard and streaming buffers from section 4 are the same idea &mdash; you already met it as an array with <code>% MAX</code>. This is the pointer version of that wrap.</p></div>
+    </div>
+
+    <h3>All three, side by side</h3>
+  </div>
+  <table class="cmp">
+    <tr><th></th><th>Singly linked</th><th>Doubly linked</th><th>Circular</th></tr>
+    <tr><td>Pointers per node</td><td>1 (<code>next</code>)</td><td>2 (<code>next</code>, <code>prev</code>)</td><td>1 (or 2 if also doubly)</td></tr>
+    <tr><td>Last node's <code>next</code></td><td><code>NULL</code></td><td><code>NULL</code></td><td><strong>points at <code>head</code></strong></td></tr>
+    <tr><td>Travel backwards</td><td>No</td><td><strong>Yes</strong></td><td>Only by going all the way round</td></tr>
+    <tr><td>Loop condition</td><td><code>temp != NULL</code></td><td><code>temp != NULL</code></td><td><code>do…while (temp != head)</code></td></tr>
+    <tr><td>Memory overhead</td><td><strong>Lowest</strong></td><td>Highest</td><td>Same as singly</td></tr>
+    <tr><td>Pointers to fix on insert</td><td>2</td><td>4</td><td>2, plus keeping the loop closed</td></tr>
+    <tr><td>Use it for</td><td>Simple sequences, stacks, queues</td><td>Back/forward, undo-redo, cursors</td><td>Anything that cycles and never ends</td></tr>
+  </table>
+  <div class="col">
+    <div class="note"><span class="note-t">And yes, you can combine them</span>
+      <p>A <strong>doubly linked circular list</strong> has both: every node points both ways, and the two ends join up. Next on the last item wraps to the first, Previous on the first wraps to the last. That is what a real media player's shuffle-and-repeat queue usually is &mdash; and it is also how many operating systems hold their list of running processes.</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind solo">CHECK</span><h4>Which variant fits?</h4></div>
+      <div class="lab-body">
+        <div id="varQuiz"></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
 <!-- ============ PRACTICE ============ -->
 <section id="practice"><div class="wrap">
-  <div class="sec-head"><span class="sec-num">10</span><h2>Practice</h2></div>
+  <div class="sec-head"><span class="sec-num">12</span><h2>Practice</h2></div>
   <div class="col">
     <p>Nothing here is graded. Get it wrong as many times as you like &mdash; that is what the reset buttons are for.</p>
 
@@ -1226,7 +1611,7 @@ newNode = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<
 
 <!-- ============ CAPSTONE ============ -->
 <section id="capstone"><div class="wrap">
-  <div class="sec-head"><span class="sec-num">11</span><h2>Putting it together</h2></div>
+  <div class="sec-head"><span class="sec-num">13</span><h2>Putting it together</h2></div>
   <div class="col">
     <h3>The six bugs that cost the most marks</h3>
     <p>Every one of these compiles cleanly.</p>
@@ -1285,7 +1670,7 @@ newNode = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<
     </div>
 
     <div class="lab">
-      <div class="lab-head"><span class="lab-kind">LAB 15</span><h4>A stack with no size limit</h4></div>
+      <div class="lab-head"><span class="lab-kind">LAB 18</span><h4>A stack with no size limit</h4></div>
       <div class="lab-body">
         <p>Same buttons as Lab 1. Push as many as you like &mdash; it will not overflow. Watch the node diagram and notice that <code>top</code> behaves exactly like <code>head</code> did.</p>
         <div class="row">
@@ -1327,11 +1712,11 @@ newNode = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<
 
 <!-- ============ QUIZ ============ -->
 <section id="quiz"><div class="wrap">
-  <div class="sec-head"><span class="sec-num">12</span><h2>Self-check</h2></div>
+  <div class="sec-head"><span class="sec-num">14</span><h2>Self-check</h2></div>
   <div class="col">
-    <p>Twenty questions across all three structures. Nothing is recorded and nothing is graded &mdash; every answer comes with an explanation, so a wrong one here is worth more than a right one you guessed.</p>
+    <p>Thirty questions covering everything in the guide &mdash; stacks, queues, circular queues, the array comparison, linked lists, and the doubly and circular variants. Nothing is recorded and nothing is graded, and every answer comes with an explanation, so a wrong one here is worth more than a right one you guessed.</p>
     <div id="quizHost"></div>
-    <div class="readout" id="quizScore" style="font-size:15px">Answered 0 of 20.</div>
+    <div class="readout" id="quizScore" style="font-size:15px">Answered 0 of 30.</div>
   </div>
 </div></section>
 
@@ -1406,7 +1791,13 @@ function makeStepper(codeEl,lines){
 }
 
 /* ============================================================ generic MCQ */
-function renderMCQ(host,qs,onAnswer){
+function renderMCQ(host,rawQs,onAnswer){
+  // shuffle each question's options so the correct answer isn't always the same letter
+  const qs=rawQs.map(q=>{
+    const idx=q.c.map((_,i)=>i);
+    for(let i=idx.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=idx[i]; idx[i]=idx[j]; idx[j]=t; }
+    return {q:q.q, e:q.e, c:idx.map(k=>q.c[k]), a:idx.indexOf(q.a)};
+  });
   host.innerHTML=qs.map((q,i)=>`
     <div class="q" data-q="${i}">
       <div class="qt">${i+1}. ${q.q}</div>
@@ -1702,6 +2093,174 @@ orderGame('[data-order-game="enqOrder"]',['a','b','d','c','e'],'#enqCheck','#enq
   draw();
 })();
 
+/* ============================================================ DEMO A — memory pool */
+(function(){
+  const grid=$('#ramGrid'), out=$('#ramOut'); if(!grid) return;
+  const N=12; let M=new Array(N).fill(null), head=-1;
+  function draw(fresh){
+    fresh=fresh||[];
+    grid.innerHTML=M.map((c,i)=>{
+      const f=fresh.includes(i)?'fresh2':'';
+      if(!c) return `<div class="rcell ${f}"><span class="addr">${i}</span></div>`;
+      if(c.t==='other') return `<div class="rcell other ${f}"><span class="addr">${i}</span>in use</div>`;
+      if(c.t==='arr') return `<div class="rcell arr ${f}"><span class="addr">${i}</span>${c.v}</div>`;
+      return `<div class="rcell nd ${f}">${i===head?'<span class="hd">head</span>':''}<span class="addr">${i}</span>${c.v}<span class="nx">${c.next<0?'NULL':'→ '+c.next}</span></div>`;
+    }).join('');
+  }
+  const freeIdx=()=>M.map((c,i)=>c?-1:i).filter(i=>i>=0);
+  function runs(){ let best=0,cur=0; for(let i=0;i<N;i++){ if(!M[i]){cur++;best=Math.max(best,cur);} else cur=0; } return best; }
+  function clearMine(){ M=M.map(c=>c&&c.t==='other'?c:null); head=-1; }
+  $('#ramArr').onclick=()=>{
+    clearMine();
+    let at=-1;
+    for(let i=0;i+4<N;i++) if(M.slice(i,i+5).every(c=>!c)){ at=i; break; }
+    if(at<0){
+      draw();
+      say(out,`${R('FAILED. Not enough room for int a[5].')}\n\nFree slots: ${G(freeIdx().length)}  —  longest unbroken run: ${R(runs())}\n\nThere is plenty of memory. It is just the ${Y('wrong shape')}. An array needs 5 slots ${Y('side by side')}, because a[3] is found by counting 3 forward from the start.`);
+      return;
+    }
+    const used=[]; for(let k=0;k<5;k++){ M[at+k]={t:'arr',v:(k+1)*10}; used.push(at+k); }
+    draw(used);
+    say(out,`${G('Array stored at slots '+at+'–'+(at+4)+'.')}\n\nOne unbroken block. ${K('a[3]')} is found instantly: ${K('start + 3')} = slot ${at+3}. ${Y('No searching, no arrows — just arithmetic.')}`);
+  };
+  $('#ramNode').onclick=()=>{
+    clearMine();
+    const fr=freeIdx();
+    if(fr.length<5){ draw(); say(out,`${R('Genuinely out of memory')} — only ${fr.length} free slots for 5 nodes.`); return; }
+    const pick=[];
+    while(pick.length<5){ const c=fr[Math.floor(Math.random()*fr.length)]; if(!pick.includes(c)) pick.push(c); }
+    pick.forEach((p,k)=>M[p]={t:'node',v:(k+1)*10,next:k===4?-1:pick[k+1]});
+    head=pick[0]; draw(pick);
+    say(out,`${G('All 5 nodes stored.')} They landed at slots ${K(pick.join(', '))} — ${Y('scattered, in no particular order')}.\n\nIt still works because each node carries the address of the next one. Follow them: ${G(pick.join(' → ')+' → NULL')}\n\nNo unbroken run was needed. Any 5 free slots anywhere would have done.`);
+  };
+  $('#ramFrag').onclick=()=>{
+    M=new Array(N).fill(null); head=-1;
+    [2,5,8].forEach(i=>M[i]={t:'other'});
+    draw([2,5,8]);
+    say(out,`Other programs have taken slots ${K('2, 5 and 8')}.\n\nFree slots: ${G(freeIdx().length)} of 12  —  longest unbroken run: ${R(runs())}\n\nNow try both buttons again. There is ${Y('easily enough space')} for 5 items. The question is whether it is the right shape.`);
+  };
+  $('#ramReset').onclick=()=>{ M=new Array(N).fill(null); head=-1; draw(); say(out,'Memory is empty. Try storing 5 items each way.'); };
+  draw();
+})();
+
+/* ============================================================ DEMO B — insert at front race */
+(function(){
+  const aRow=$('#bArr'), lRow=$('#bLL'), out=$('#bOut'); if(!aRow) return;
+  const BASE=[11,22,33,44,55,66,77,88];
+  let A=[...BASE], timers=[], running=false;
+  const clearT=()=>{ timers.forEach(clearTimeout); timers=[]; running=false; };
+  function drawA(mv,nw,gap){
+    aRow.innerHTML=A.map((v,i)=>
+      `<div class="acell ${mv===i?'moving':''} ${nw===i?'newly':''}">${v===null?'':v}</div>`).join('')
+      + (gap?'<div class="acell gap"></div>':'');
+  }
+  function drawL(nodes){ lRow.innerHTML=chain(nodes); }
+  const baseL=()=>BASE.map((v,i)=>({v,tags:i===0?['head']:[]}));
+  function num(el,n,lab){ el.innerHTML=n+`<small>${lab}</small>`; }
+  function reset(){
+    clearT(); A=[...BASE]; drawA(); drawL(baseL());
+    num($('#bArrN'),0,'DATA MOVES'); num($('#bLLN'),0,'POINTER WRITES');
+    $('#bArrMsg').textContent='Every element has to shuffle right to open a gap at index 0.';
+    $('#bLLMsg').textContent='Nothing moves. Only two arrows change.';
+    $('#paneArr').classList.remove('win'); $('#paneLL').classList.remove('win');
+    $('#bRun').disabled=false;
+    say(out,'Press Run and watch both sides at once.');
+  }
+  $('#bReset').onclick=reset;
+  $('#bRun').onclick=()=>{
+    if(running) return; clearT(); A=[...BASE]; running=true; $('#bRun').disabled=true;
+    const d=RM?0:260, n=BASE.length;
+    // linked list: 2 writes
+    timers.push(setTimeout(()=>{
+      drawL([{v:5,tags:['newNode']}].concat(baseL()));
+      num($('#bLLN'),1,'POINTER WRITES'); $('#bLLMsg').textContent='newNode->next = head;  — one write.';
+    },d));
+    timers.push(setTimeout(()=>{
+      drawL([{v:5,tags:['head'],cls:'fresh'}].concat(BASE.map(v=>({v,tags:[]}))));
+      num($('#bLLN'),2,'POINTER WRITES'); $('#bLLMsg').textContent='head = newNode;  — two writes. Done.';
+      $('#paneLL').classList.add('win');
+    },d*2));
+    // array: shift from the back
+    A.push(null); drawA(null,null,false);
+    for(let k=0;k<n;k++){
+      timers.push(setTimeout(()=>{
+        const from=n-1-k;
+        A[from+1]=A[from]; A[from]=null;
+        drawA(from+1);
+        num($('#bArrN'),k+1,'DATA MOVES');
+        $('#bArrMsg').textContent=`Moving a[${from}] to a[${from+1}] … ${k+1} of ${n}`;
+      },d*(k+1)));
+    }
+    timers.push(setTimeout(()=>{
+      A[0]=5; drawA(null,0);
+      num($('#bArrN'),n+1,'DATA MOVES');
+      $('#bArrMsg').textContent=`Finally a[0] = 5. That is ${n} shifts plus 1 write.`;
+      running=false; $('#bRun').disabled=false;
+      say(out,`${G('Linked list: 2 pointer writes.')}  ${R('Array: '+n+' shifts + 1 write = '+(n+1)+' operations.')}\n\nThe list never touched the other eight values — they are still sitting exactly where they always were. The array had to physically relocate every single one to open a gap at the front.\n\nNow imagine the array held ${Y('a million')} values.`);
+    },d*(n+1)+120));
+  };
+  reset();
+})();
+
+/* ============================================================ DEMO C — random access race */
+(function(){
+  const aRow=$('#cArr'), lRow=$('#cLL'), out=$('#cOut'); if(!aRow) return;
+  const V=[11,22,33,44,55,66,77,88], TARGET=6;
+  let timers=[], running=false;
+  const clearT=()=>{ timers.forEach(clearTimeout); timers=[]; running=false; };
+  function drawA(hot){ aRow.innerHTML=V.map((v,i)=>`<div class="acell ${hot===i?'hotread':''}">${v}</div>`).join(''); }
+  function drawL(at){ lRow.innerHTML=chain(V.map((v,i)=>({v,
+      tags:(i===0?['head']:[]).concat(at===i?['temp']:[]), cls:at===i?'hot':''}))); }
+  function num(el,n){ el.innerHTML=n+'<small>STEPS</small>'; }
+  function reset(){
+    clearT(); drawA(); drawL(null); num($('#cArrN'),0); num($('#cLLN'),0);
+    $('#cArrMsg').textContent='Jump straight there with one calculation.';
+    $('#cLLMsg').textContent='No shortcuts. Follow the arrows from the start.';
+    $('#paneArr2').classList.remove('win'); $('#paneLL2').classList.remove('win');
+    $('#cRun').disabled=false;
+    say(out,'Press Run. This time watch the linked list struggle.');
+  }
+  $('#cReset').onclick=reset;
+  $('#cRun').onclick=()=>{
+    if(running) return; clearT(); running=true; $('#cRun').disabled=true;
+    const d=RM?0:420;
+    timers.push(setTimeout(()=>{
+      drawA(TARGET); num($('#cArrN'),1);
+      $('#cArrMsg').textContent='a[6] = start + 6 × 4 bytes. One calculation, arrived.';
+      $('#paneArr2').classList.add('win');
+    },d));
+    for(let k=0;k<=TARGET;k++){
+      timers.push(setTimeout(()=>{
+        drawL(k); num($('#cLLN'),k+1);
+        $('#cLLMsg').textContent = k===TARGET
+          ? `Arrived at item 6 after ${TARGET+1} steps.`
+          : `temp = temp->next …  now at item ${k}`;
+      },d*(k+1)));
+    }
+    timers.push(setTimeout(()=>{
+      running=false; $('#cRun').disabled=false;
+      say(out,`${G('Array: 1 step.')}  ${R('Linked list: '+(TARGET+1)+' steps.')}\n\nThe array computed the address. The list had to visit every node in front of the one it wanted.\n\nAsk for item 500 and the array still takes ${G('1 step')} — the list takes ${R('501')}. This is the flip side of Demo B, and it is why arrays have not gone anywhere.`);
+    },d*(TARGET+1)+150));
+  };
+  reset();
+})();
+
+/* ============================================================ DECIDE quiz */
+renderMCQ($('#chooseQuiz'),[
+ {q:'A school stores exactly <b>240</b> exam scores and mostly does things like "what did student 137 get?"',
+  c:['Array','Linked list'],a:0,
+  e:'The size is known and fixed, and the work is looking things up by position — which is the array\u2019s one calculation versus the list\u2019s 137 steps. Nothing here needs to grow or be inserted at the front.'},
+ {q:'A music app keeps a play queue. Users constantly add "play next", drag songs around, and remove ones they\u2019ve heard.',
+  c:['Array','Linked list'],a:1,
+  e:'Constant insertion and deletion in the middle and at the front, and no way to know how long the queue will get. Every "play next" on an array shifts the entire rest of the queue; on a list it is two pointer writes.'},
+ {q:'A game draws a grid of <b>64&times;64</b> tiles and must read tile (x, y) thousands of times per second.',
+  c:['Array','Linked list'],a:0,
+  e:'Fixed size and pure random access at enormous speed. The address of any tile is one calculation. Walking a linked list thousands of times per frame would make the game unplayable.'},
+ {q:'A hospital logs every patient arrival. Nobody knows if today brings 10 or 400, and the oldest record is always processed first.',
+  c:['Array','Linked list'],a:1,
+  e:'The size is genuinely unknown, so any array you declare is either too small on a bad day or wasteful on a quiet one. A linked list grows to fit the day it actually gets. (Processing oldest-first makes this a queue — and a queue built from nodes has no ceiling at all.)'}
+]);
+
 /* ============================================================ LAB 8 — anatomy */
 (function(){
   const stage=$('#anatChain'), btns=$('#anatBtns'), out=$('#anatOut'); if(!stage) return;
@@ -1922,6 +2481,116 @@ orderGame('[data-order-game="enqOrder"]',['a','b','d','c','e'],'#enqCheck','#enq
   bR.onclick=reset; reset();
 })();
 
+/* ============================================================ doubly + circular renderers */
+function dnodeHTML(v,cls,pn,nn){
+  return `<div class="node ${cls||''}"><div class="cell prev ${pn?'nul':''}"></div>`+
+         `<div class="cell data">${v}</div><div class="cell next ${nn?'nul':''}"></div></div>`;
+}
+function dchain(nodes){
+  let h='<div class="chain">';
+  nodes.forEach((n,i)=>{
+    h+=slotHTML(n.tags, dnodeHTML(n.v,n.cls,i===0,i===nodes.length-1));
+    if(i<nodes.length-1) h+='<div class="wire2"><div class="w-fwd"></div><div class="w-bak"></div></div>';
+  });
+  return h+'</div>';
+}
+function cchain(nodes,label){
+  return `<div class="circwrap">${chain(nodes,{endNull:false})}`+
+         `<div class="loopline"><span>${label||"last node's next \u2192 head"}</span></div></div>`;
+}
+
+/* ============================================================ LAB 15 — doubly walker */
+(function(){
+  const stage=$('#dWalk'), out=$('#dOut'); if(!stage) return;
+  const V=[10,20,30,40]; let i=0;
+  function draw(){
+    stage.innerHTML=dchain(V.map((v,k)=>({v,
+      tags:(k===0?['head']:[]).concat(k===i?['temp']:[]), cls:k===i?'hot':''})));
+  }
+  function msg(extra){
+    const p = i===0?`${Y('NULL')} — nothing before the first node`:G(V[i-1]);
+    const n = i===V.length-1?`${Y('NULL')} — nothing after the last node`:G(V[i+1]);
+    say(out,`${extra?extra+'\n\n':''}temp -> ${G(V[i])}   (item ${i})\n${K('temp->prev')} = ${p}\n${K('temp->next')} = ${n}`);
+    $('#dPrev').disabled=(i===0); $('#dNext').disabled=(i===V.length-1);
+  }
+  $('#dNext').onclick=()=>{ if(i>=V.length-1) return; i++; draw(); msg(`${K('temp = temp->next')} — moved forward.`); };
+  $('#dPrev').onclick=()=>{ if(i<=0) return; i--; draw();
+    msg(`${K('temp = temp->prev')} — moved ${G('backward')}. ${Y('A singly linked list cannot do this at all')} — it would have to restart from head and walk down again.`); };
+  $('#dReset').onclick=()=>{ i=0; draw(); msg(); };
+  draw(); msg();
+})();
+
+/* LAB 16 — doubly insert order */
+orderGame('[data-order-game="dblOrder"]',['a','b','c','d'],'#dblCheck','#dblReset','#dblOut',
+ `${G('Correct.')}\n1. ${K('n->next = head;')}        new node points forward\n2. ${K('n->prev = NULL;')}        it is the new first node\n3. ${K('if (head) head->prev = n;')}  old first points back\n4. ${K('head = n;')}              move head LAST\n\nThe rule from Lab 10 still governs everything: ${Y('head must move last')}. Any order that moves head before line 3 loses the address of the old first node, and line 3 then points the new node back at itself.`,
+ `${R('Not yet.')} Two tests to apply:\n• ${Y('head = n; must be LAST.')} The moment head moves, the old first node's address is gone — so every line that needs it has to run first.\n• Line 3 repairs the ${Y('backward')} chain. Leave it out or run it too late and the list walks forwards perfectly but breaks the first time someone presses Back.`);
+
+/* ============================================================ LAB 17 — circular traversal */
+(function(){
+  const stage=$('#cWalkStage'), out=$('#cWalkOut'); if(!stage) return;
+  const V=[10,20,30,40]; let i=0, steps=0, laps=0, mode='bad', stopped=false;
+  function draw(){
+    stage.innerHTML=cchain(V.map((v,k)=>({v,
+      tags:(k===0?['head']:[]).concat(k===i&&!stopped?['temp']:[]), cls:(k===i&&!stopped)?'hot':''})));
+  }
+  function reset(){
+    i=0; steps=0; laps=0; stopped=false; draw();
+    $('#cWalkStep').disabled=false; $('#cWalkStep').textContent='Step';
+    say(out, mode==='bad'
+      ? `temp = head. Condition ${K('temp != NULL')} — temp is node ${G(V[0])}, not NULL, so we print and step.`
+      : `temp = head. A ${K('do...while')} always runs the body once ${Y('before')} testing — which is exactly what we need, since temp already equals head.`);
+  }
+  $('#cWalkStep').onclick=()=>{
+    if(stopped) return;
+    steps++; i=(i+1)%V.length;
+    if(i===0) laps++;
+    draw();
+    if(mode==='bad'){
+      const printed=V.concat(V,V,V).slice(0,steps).join(' ');
+      if(laps>=2){
+        stopped=true; $('#cWalkStep').disabled=true; $('#cWalkStep').textContent='It never stops';
+        stage.classList.add('warnpulse');
+        say(out,`${R('INFINITE LOOP.')} ${steps} steps, ${R(laps+' full laps')} of a 4-node list.\n\nOutput so far: ${printed} ...\n\n${K('temp != NULL')} is ${R('never false')} — there is no NULL anywhere in a circular list. This program prints forever. It does not crash, which is what makes it so hard to spot.`);
+      } else {
+        say(out,`Step ${steps}: temp -> ${G(V[i])}${i===0?'  '+Y('← back at head already, and the loop has not noticed'):''}\nCondition ${K('temp != NULL')} is ${R('still true')}. Keep stepping.\n\nOutput so far: ${printed}`);
+      }
+    } else {
+      const printed=V.slice(0,steps).join(' ');
+      if(i===0){
+        stopped=true; $('#cWalkStep').disabled=true; $('#cWalkStep').textContent='Loop finished';
+        say(out,`${G('Loop ends correctly.')} temp is back at ${K('head')}, so ${K('temp != head')} is ${R('false')}.\n\nOutput: ${G(V.join(' '))}\n\nEvery node printed exactly ${G('once')}, and the program stopped.`);
+      } else {
+        say(out,`Step ${steps}: printed ${G(V[i-1])}, temp -> ${G(V[i])}\nCondition ${K('temp != head')} is ${G('true')} — go round again.\n\nOutput so far: ${printed}`);
+      }
+    }
+  };
+  $('#cWalkReset').onclick=()=>{ stage.classList.remove('warnpulse'); reset(); };
+  $$('.circcond').forEach(b=>b.onclick=()=>{
+    $$('.circcond').forEach(o=>o.classList.remove('on','blue'));
+    b.classList.add('on','blue'); mode=b.dataset.c; stage.classList.remove('warnpulse'); reset();
+  });
+  reset();
+})();
+
+/* ============================================================ variant check quiz */
+renderMCQ($('#varQuiz'),[
+ {q:'A browser needs both a <b>Back</b> and a <b>Forward</b> button.',
+  c:['Singly linked','Doubly linked','Circular','Any of them'],a:1,
+  e:'Two directions of travel means two pointers. A singly linked list can offer Forward only — to go back it would have to restart from head and walk the whole way down again.'},
+ {q:'An operating system cycles through running processes, giving each a slice of CPU time, and never stops.',
+  c:['Singly linked','Doubly linked','Circular'],a:2,
+  e:'Round-robin scheduling. There is no last process — after the final one it returns to the first. A NULL would mean "the end", and there is no end.'},
+ {q:'You write <code>while (temp != NULL)</code> to print a circular list. What happens?',
+  c:['It prints each node once','It crashes immediately','It prints forever','It prints nothing'],a:2,
+  e:'NULL never appears in a circular list, so the condition is never false. It does not crash — it just loops forever, which is harder to spot than a crash because the code looks perfectly normal.'},
+ {q:'Why must a circular traversal use <code>do…while</code> rather than <code>while</code>?',
+  c:['do…while is faster','Because <code>temp</code> already equals <code>head</code> at the start, so a plain while would exit before printing anything','Because C requires it for pointers','It does not matter'],a:1,
+  e:'The test is <code>temp != head</code>, and on entry temp IS head. A plain while checks first and exits immediately with nothing printed. do…while runs the body once before testing, which is exactly right.'},
+ {q:'What is the main <b>cost</b> of using a doubly linked list?',
+  c:['It cannot be searched','An extra pointer per node, and twice as many pointers to update on every insert or delete','It cannot grow at runtime','Traversal is slower'],a:1,
+  e:'Insert touches 4 pointers instead of 2, and every node carries an extra address. Forgetting one of the four is a classic bug: the list walks forwards perfectly and breaks the moment anyone walks it backwards.'}
+]);
+
 /* ============================================================ EXERCISE A — playlist */
 (function(){
   const stage=$('#actStage'), out=$('#actOut'); if(!stage) return;
@@ -2009,7 +2678,7 @@ renderMCQ($('#bugQuiz'),[
   e:'Valid indices run 0 to MAX-1. When <code>top</code> is MAX-1 the stack is already full, but this test lets one more through: <code>++top</code> makes it MAX and writes one slot past the end of the array. That is a buffer overflow, and it silently corrupts whatever variable happens to live next to the array.'}
 ]);
 
-/* ============================================================ LAB 15 — linked-list stack */
+/* ============================================================ LAB 18 — linked-list stack */
 (function(){
   const stage=$('#lsStage'), out=$('#lsOut'); if(!stage) return;
   let S=[];
@@ -2061,12 +2730,27 @@ renderMCQ($('#bugQuiz'),[
     e:'In a circle the two markers meet in both states. A count removes the ambiguity: <code>count == 0</code> is empty, <code>count == MAX</code> is full.'},
    {q:'Which one genuinely needs a queue rather than a stack?',c:['The browser back button','Undo in a text editor','A printer serving jobs in arrival order','Checking nested brackets'],a:2,
     e:'The printer is making a fairness promise: first submitted, first printed. That is FIFO. The other three all want the most recent item first.'},
+   {q:'Why must an array occupy one <b>unbroken run</b> of memory slots?',
+    c:['Because C was designed that way','Because <code>a[n]</code> is found by counting <i>n</i> slots forward from the start — a gap breaks that arithmetic','Because arrays cannot be split','To save memory'],a:1,
+    e:'Finding a[n] is one calculation: start + n \u00d7 item size. That only works if the items are identical in size and sitting in a row. Break the run and the address you calculate lands on the wrong thing.'},
+   {q:'Memory has <b>9 free slots</b>, but the longest unbroken run is <b>3</b>. You need to store 5 items. What works?',
+    c:['Both an array and linked nodes','An array only','Linked nodes only','Neither — there is not enough memory'],a:2,
+    e:'There is plenty of memory; it is the wrong shape. An array needs 5 slots side by side and cannot find them. The 5 nodes go into any free slots, in any order, because each one carries the address of the next.'},
+   {q:'Memory is free but broken into scattered small pieces. What is that called?',
+    c:['Overflow','Fragmentation','Underflow','Leakage'],a:1,
+    e:'Fragmentation. It is why "scattered in memory" is an advantage rather than a curiosity — arrays need one big hole, linked structures are happy with lots of small ones.'},
+   {q:'Inserting at the <b>front</b> of a structure holding <b>one million</b> items. How much work?',
+    c:['Array: 1 million moves. Linked list: 2 pointer writes','Both take about a million operations','Array: 2 moves. Linked list: 1 million writes','Both take 2 operations'],a:0,
+    e:'The array must shift every element right to open a gap at index 0, so its cost grows with the data. The linked list changes two arrows and never touches the other values \u2014 2 writes whether the list holds 8 items or 8 million.'},
+   {q:'Now fetch <b>item number 500</b> from each. How much work?',
+    c:['Array: 500 steps. Linked list: 1 step','Array: 1 step. Linked list: 500 steps','Both take 1 step','Both take 500 steps'],a:1,
+    e:'This is the flip side, and it is why arrays have not gone anywhere. The array computes the address in one calculation. The linked list has no formula for where node 500 lives, so it must visit all 499 nodes in front of it.'},
    {q:'What does the variable <code>head</code> actually hold?',c:['The first value in the list','The number of nodes','The address of the first node','A copy of the first node'],a:2,
     e:'head is a pointer — it holds an address, not data. That is why you need <code>head-&gt;data</code> to get the value.'},
    {q:'What is the value of <code>next</code> in the last node of a list?',c:['0','NULL','The address of head','Whatever malloc left there'],a:1,
     e:'NULL marks the end of the list, exactly as \\0 marks the end of a string. Forgetting to set it is why option D is such a common bug.'},
-   {q:'Which order correctly inserts a new node at the front?',c:['<code>head = newNode; newNode-&gt;next = head;</code>','<code>newNode-&gt;next = head; head = newNode;</code>','<code>newNode-&gt;next = NULL; head = newNode;</code>','Either A or B works'],a:1,
-    e:'Attach before you move. Option A loses the address of the old first node and leaves the new node pointing at itself.'},
+   {q:'Which order correctly inserts a new node at the front?',c:['<code>head = newNode; newNode-&gt;next = head;</code>','<code>newNode-&gt;next = head; head = newNode;</code>','<code>newNode-&gt;next = NULL; head = newNode;</code>','Both of those orders work'],a:1,
+    e:'Attach before you move. The reversed order loses the address of the old first node and leaves the new node pointing at itself.'},
    {q:'You need a loop that stops <b>on</b> the last node. Which condition?',c:['<code>while (temp != NULL)</code>','<code>while (temp-&gt;next != NULL)</code>','<code>while (temp-&gt;data != NULL)</code>','<code>while (head != NULL)</code>'],a:1,
     e:'<code>temp != NULL</code> walks one step too far and ends holding nothing. <code>temp-&gt;next != NULL</code> stops while temp still holds the last node.'},
    {q:'Why does deleting the last node of a singly linked list need <b>two</b> pointers?',c:['To make the loop faster','Because you must set the second-to-last node\u2019s next to NULL, and you cannot travel backwards','Because free() takes two arguments','To avoid a memory leak'],a:1,
@@ -2076,14 +2760,29 @@ renderMCQ($('#bugQuiz'),[
    {q:'Which is a genuine advantage of a linked list over an array?',c:['Faster access to the 5th element','Uses less memory per item','It can grow and shrink while the program runs','Elements sit side by side in memory'],a:2,
     e:'Nodes are allocated one at a time at runtime, so there is no fixed ceiling. It is worse at the other three — random access is slow and every node also costs a pointer.'},
    {q:'A stack built from a linked list needs no overflow check. Why not?',c:['Because pop is faster','Because there is no MAX — it grows until the machine itself runs out of memory','Because linked lists cannot be full','Because push never fails'],a:1,
-    e:'The ceiling came from <code>#define MAX</code>, not from the idea of a stack. Remove the array and the ceiling goes with it. Push can still fail if malloc returns NULL, which is why that check stays.'}
+    e:'The ceiling came from <code>#define MAX</code>, not from the idea of a stack. Remove the array and the ceiling goes with it. Push can still fail if malloc returns NULL, which is why that check stays.'},
+   {q:'In a <b>doubly</b> linked list, what does the <code>prev</code> pointer of the <b>first</b> node hold?',
+    c:['The address of the last node','NULL','The address of head','The address of the second node'],a:1,
+    e:'Both ends are marked with NULL in a doubly linked list: the first node has no node before it, and the last has none after it. (Make it circular as well and this changes \u2014 then prev on the first node points at the last.)'},
+   {q:'In a <b>circular</b> linked list, what does the last node\u2019s <code>next</code> hold?',
+    c:['NULL','The address of the head node','Its own address','Zero'],a:1,
+    e:'That single change is the entire difference. There is no NULL anywhere, so there is no end \u2014 keep following next and you come back round to where you started.'},
+   {q:'Inserting at the front of a <b>doubly</b> linked list updates how many pointers?',
+    c:['2','3','4','1'],a:2,
+    e:'<code>n-&gt;next</code>, <code>n-&gt;prev</code>, <code>head-&gt;prev</code>, and <code>head</code> itself. Forgetting the third leaves the list walkable forwards but broken backwards \u2014 a bug that hides until someone presses Back.'},
+   {q:'A text editor needs <b>undo and redo</b>. Why is a plain stack not enough?',
+    c:['Stacks are too slow','Popping discards the action, so there is nothing left to redo','Stacks cannot hold text','Stacks have a fixed size'],a:1,
+    e:'Once an action is popped it is gone. A doubly linked list of edits lets a cursor move backwards (undo) and forwards (redo) through the history without destroying anything.'},
+   {q:'In a doubly linked <b>circular</b> list, what happens when you press <b>Previous</b> on the first item?',
+    c:['Nothing — it is the start','It crashes','You wrap around to the last item','It returns NULL'],a:2,
+    e:'Both ends join up in both directions, so Previous on the first wraps to the last and Next on the last wraps to the first. That is what a media player\u2019s repeat queue usually is, and how many operating systems hold their list of running processes.'}
   ],ok=>{
     done++; if(ok) right++;
-    let m=`Answered ${done} of 20 — ${right} correct.`;
-    if(done===20) m += right===20 ? `  ${G('Full marks. Go write the eight functions from memory.')}`
-      : right>=15 ? `  ${G('Solid.')} Re-read the sections behind the ones you missed.`
-      : right>=10 ? `  ${Y('Halfway.')} Redo Lab 10 and Lab 14 — those two carry the most weight.`
-      : `  ${Y('Worth another pass from the top.')} Do the labs with the buttons rather than just reading, especially Labs 2, 7 and 10.`;
+    let m=`Answered ${done} of 30 — ${right} correct.`;
+    if(done===30) m += right>=28 ? `  ${G('Full marks territory. Go write the functions from memory.')}`
+      : right>=23 ? `  ${G('Solid.')} Re-read the sections behind the ones you missed.`
+      : right>=15 ? `  ${Y('Halfway.')} Redo Lab 10, Lab 14 and Lab 17 — those three carry the most weight.`
+      : `  ${Y('Worth another pass from the top.')} Work the labs with the buttons rather than reading them, especially Demo A, Lab 2, Lab 10 and Lab 17.`;
     say(score,m);
   });
 })();
