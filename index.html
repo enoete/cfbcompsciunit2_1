@@ -60,7 +60,8 @@ code,pre,.mono{font-family:var(--mono)}
 
 /* ---------- layout ---------- */
 .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
-.col{max-width:70ch}
+.col{max-width:none}
+.col>p,.col>h3,.col>h4{max-width:70ch}
 main{padding-bottom:120px}
 
 /* ---------- top bar ---------- */
@@ -79,6 +80,8 @@ nav.jump a{
 }
 nav.jump a:hover{background:var(--wire-soft);color:var(--wire)}
 nav.jump a.on{background:var(--ink);color:#fff}
+nav.jump a.home{color:var(--wire);font-weight:700}
+nav.jump a.home:hover{background:var(--wire-soft)}
 
 /* ---------- hero ---------- */
 .hero{padding:64px 0 52px;border-bottom:2px solid var(--ink)}
@@ -499,6 +502,7 @@ footer{margin-top:40px}
   <div class="bar-in">
     <div class="brand">ADTs<span>-&gt;</span>next</div>
     <nav class="jump" id="jump">
+      <a class="home" href="https://enoete.github.io/compsciu2_hub/">&larr; Unit 2 hub</a>
       <a href="#adt">What's an ADT</a>
       <a href="#stack">Stacks</a>
       <a href="#stackuse">Stacks at work</a>
