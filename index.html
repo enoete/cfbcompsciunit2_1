@@ -4,6 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Abstract Data Types — Linked Lists, Stacks &amp; Queues</title>
+
+<!-- ===== lesson manifest: read by the hub's sync script ===== -->
+<meta property="og:title" content="Abstract Data Types — Linked Lists, Stacks &amp; Queues">
+<meta property="og:description" content="Stacks, queues and linked lists built from scratch in C, with three full worked applications — an RPN calculator, a circular ticket queue, and a playlist that grows from singly to doubly to circular linked.">
+<meta property="og:site_name" content="CS Unit 2 · CFBC">
+<meta name="description" content="Abstract data types in C: stacks, queues, circular queues, singly/doubly/circular linked lists, and three full applications built one code block at a time.">
+<meta name="theme-color"        content="#1668D8">
+<meta name="lesson:duration"    content="150 min">
+<meta name="lesson:difficulty"  content="Foundation">
+<meta name="lesson:objectives"  content="10">
+<meta name="lesson:questions"   content="30">
+<meta name="lesson:sections"    content="15">
+<meta name="lesson:topics"      content="Stacks,Queues,Circular queues,Linked lists,Singly linked,Doubly linked,Circular linked,ADT,Arrays vs lists">
+<meta name="lesson:activities"  content="Bracket checker,String reversal,RPN calculator,Circular queue,Doubles stand,Linked list traversal,Doubly linked list,Playlist builder,Unit test">
+<meta name="lesson:updated"     content="2026-09-17">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -463,6 +479,18 @@ footer{border-top:2px solid var(--ink);padding:30px 0 60px;font-size:14.5px;colo
 @keyframes spin360{to{transform:rotate(360deg)}}
 .warnpulse{animation:wp .5s ease-in-out 3}
 @keyframes wp{50%{background:var(--bad-soft)}}
+
+/* ---------- notebook cells ---------- */
+.nb{border:2px solid var(--ink);border-radius:var(--r);background:var(--card);margin:26px 0;overflow:hidden}
+.nbcell{padding:18px 22px}
+.nbcell+.nbcell{border-top:1px dashed var(--grid)}
+.nbcell.md{background:#fff}
+.nbcell.code{background:#F5F8F7}
+.nbcell.md p:last-child,.nbcell.md table:last-child{margin-bottom:0}
+.nbtag{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--ink3);margin-bottom:9px;letter-spacing:.02em}
+.nbtag.out{color:var(--ok);margin-top:14px}
+.nbcell.code pre.code{margin:0 0 12px}
+.nbrun{display:inline-flex;align-items:center;gap:6px}
 footer{margin-top:40px}
 </style>
 </head>
@@ -731,6 +759,120 @@ footer{margin-top:40px}
         <div class="readout" id="pshOut">Place all five steps, then check.</div>
       </div>
     </div>
+
+    <h3>Application 3 &mdash; a calculator that never needs brackets</h3>
+    <p>Punch <span class="mono">3 + 4 &times; 2</span> into an ordinary calculator and you need to know that &times; happens before +, or you get the wrong answer. Some real calculators &mdash; classic HP models, and every compiler evaluating an expression internally &mdash; sidestep the whole problem by working in <strong>Reverse Polish Notation (RPN)</strong>: numbers first, operator after. <span class="mono">3 4 +</span> means "3, 4, add them." There is no ambiguity to resolve and no bracket to balance, because the order you write the tokens in <em>is</em> the order they get used. A stack evaluates it in one pass, left to right, and never looks back.</p>
+
+    <div class="note analogy"><span class="note-t">Handing ingredients to a chef one at a time</span>
+      <p>You hand the chef a carrot, then an onion. The chef doesn't cook until you say "combine" &mdash; and when you do, the chef reaches for the two things closest to hand: the onion first, then the carrot underneath it. That's it. That's the entire algorithm. Numbers get set down on the counter (pushed). An operator means "combine the top two things on the counter," and the result goes right back onto the counter for whatever's next.</p>
+    </div>
+
+    <div class="nb">
+      <div class="nbcell md">
+        <div class="nbtag">markdown</div>
+        <p>We already have <code>push</code> and <code>pop</code> from Lab 1 &mdash; an RPN calculator doesn't need a new data structure, just a new <em>use</em> for the one you already built. Two small helpers first: something to tell a number token from an operator token, and something to actually do the arithmetic.</p>
+      </div>
+      <div class="nbcell code">
+        <div class="nbtag">In&nbsp;[1]</div>
+<pre class="code"><span class="kw">int</span> <span class="fn">isOperator</span>(<span class="kw">char</span> c)
+{
+    <span class="kw">return</span> c == <span class="st">'+'</span> || c == <span class="st">'-'</span> || c == <span class="st">'*'</span> || c == <span class="st">'/'</span>;
+}
+
+<span class="kw">int</span> <span class="fn">applyOp</span>(<span class="kw">int</span> a, <span class="kw">int</span> b, <span class="kw">char</span> op)
+{
+    <span class="kw">switch</span> (op) {
+        <span class="kw">case</span> <span class="st">'+'</span>: <span class="kw">return</span> a + b;
+        <span class="kw">case</span> <span class="st">'-'</span>: <span class="kw">return</span> a - b;
+        <span class="kw">case</span> <span class="st">'*'</span>: <span class="kw">return</span> a * b;
+        <span class="kw">case</span> <span class="st">'/'</span>: <span class="kw">return</span> a / b;
+    }
+    <span class="kw">return</span> 0;
+}</pre>
+      </div>
+      <div class="nbcell md">
+        <div class="nbtag">markdown</div>
+        <p>Notice <code>applyOp(a, b, op)</code> takes <strong>two</strong> numbers in a specific order: <code>a</code> first, <code>b</code> second, computing <code>a op b</code>. Keep that order in mind &mdash; the next cell has to hand them over correctly, and it's the one place this whole program can quietly go wrong.</p>
+      </div>
+      <div class="nbcell code">
+        <div class="nbtag">In&nbsp;[2]</div>
+<pre class="code"><span class="kw">int</span> <span class="fn">evalRPN</span>(<span class="kw">char</span> *expr)
+{
+    top = -1;                                    <span class="cm">// empty stack, reusing Lab 1's variable</span>
+    <span class="kw">char</span> *token = <span class="fn">strtok</span>(expr, <span class="st">" "</span>);      <span class="cm">// split on spaces</span>
+
+    <span class="kw">while</span> (token != NULL)
+    {
+        <span class="kw">if</span> (<span class="fn">isOperator</span>(token[0]) &amp;&amp; token[1] == <span class="st">'\0'</span>)
+        {
+            <span class="kw">int</span> b = <span class="fn">pop</span>();                       <span class="cm">// the number pushed MOST recently</span>
+            <span class="kw">int</span> a = <span class="fn">pop</span>();                       <span class="cm">// the one pushed before it</span>
+            <span class="fn">push</span>(<span class="fn">applyOp</span>(a, b, token[0]));
+        }
+        <span class="kw">else</span>
+            <span class="fn">push</span>(<span class="fn">atoi</span>(token));               <span class="cm">// it's a number &mdash; convert and push</span>
+
+        token = <span class="fn">strtok</span>(NULL, <span class="st">" "</span>);
+    }
+    <span class="kw">return</span> <span class="fn">pop</span>();                              <span class="cm">// the one value left is the answer</span>
+}</pre>
+      </div>
+      <div class="nbcell md">
+        <div class="nbtag">markdown</div>
+        <p>Read <code>b = pop()</code> then <code>a = pop()</code> again, slowly. The stack is LIFO, so the <strong>second</strong> number you pushed is the <strong>first</strong> one back out. For <code>+</code> and <code>*</code> the order never matters. For <code>-</code> and <code>/</code> it is everything.</p>
+      </div>
+      <div class="note warn" style="margin:0 0 22px"><span class="note-t">The bug that only shows up on subtraction</span>
+        <p>Swap the two lines to <code>a = pop(); b = pop();</code> and addition and multiplication still work &mdash; they don't care about order, so your test cases pass and you ship it. Then someone runs <span class="mono">10 3 -</span> expecting 7 and gets &minus;7 instead, because <code>a</code> and <code>b</code> got the numbers backwards. <strong>Always pop into <code>b</code> first.</strong> It is the operand closest to the top, which means it is the one that arrived most recently &mdash; and in <code>a &ndash; b</code>, that's the one being subtracted.</p>
+      </div>
+      <div class="nbcell md">
+        <div class="nbtag">markdown</div>
+        <p>Before running it, trace <span class="mono">3 4 + 2 *</span> by hand &mdash; the same way you traced <code>push</code>/<code>pop</code> back in Lab 1, just with the stack drawn as a row of values this time.</p>
+        <table class="cmp" style="margin-bottom:0">
+          <tr><th>Token read</th><th>Action</th><th>Stack after</th></tr>
+          <tr><td class="mono">3</td><td>push 3</td><td class="mono">3</td></tr>
+          <tr><td class="mono">4</td><td>push 4</td><td class="mono">3, 4</td></tr>
+          <tr><td class="mono">+</td><td>b=4, a=3, push 3+4</td><td class="mono">7</td></tr>
+          <tr><td class="mono">2</td><td>push 2</td><td class="mono">7, 2</td></tr>
+          <tr><td class="mono">*</td><td>b=2, a=7, push 7*2</td><td class="mono">14</td></tr>
+        </table>
+      </div>
+      <div class="nbcell code">
+        <div class="nbtag">In&nbsp;[3]</div>
+<pre class="code"><span class="kw">int</span> <span class="fn">main</span>(<span class="kw">void</span>)
+{
+    <span class="kw">char</span> expr[] = <span class="st">"3 4 + 2 *"</span>;
+    <span class="fn">printf</span>(<span class="st">"Result: %d\n"</span>, <span class="fn">evalRPN</span>(expr));
+    <span class="kw">return</span> 0;
+}</pre>
+        <button class="btn blue sm nbrun" data-out="rpnOut1">&#9654; Run this cell</button>
+        <div class="nbout" id="rpnOut1" style="display:none">
+          <div class="nbtag out">Out&nbsp;[3]</div>
+          <div class="readout">Result: 14</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 4B</span><h4>Try your own RPN expression</h4></div>
+      <div class="lab-body">
+        <p>Type numbers and one of <span class="mono">+ - * /</span>, separated by spaces, and watch the stack build up token by token &mdash; exactly like the trace table above, but for whatever you type.</p>
+        <div class="row">
+          <input id="rpnIn" class="blank" style="background:#fff;color:var(--ink);border-color:var(--ink);width:22ch;font-size:14px;padding:7px" value="5 1 2 + 4 * + 3 -">
+          <button class="btn blue sm" id="rpnLoad">Load</button>
+          <button class="btn ghost sm" data-rpn="6 2 /">6 2 /</button>
+          <button class="btn ghost sm" data-rpn="10 3 -">10 3 -</button>
+        </div>
+        <div class="stage" style="min-height:150px">
+          <div id="rpnTokens" style="font-family:var(--mono);font-size:18px;letter-spacing:2px;margin-bottom:16px;text-align:center"></div>
+          <div class="stackwrap"><div id="rpnStack"></div></div>
+        </div>
+        <div class="row">
+          <button class="btn blue" id="rpnStep">Next token</button>
+          <button class="btn ghost sm" id="rpnReset">Restart</button>
+        </div>
+        <div class="readout" id="rpnOut2">Press Next token to begin.</div>
+      </div>
+    </div>
   </div>
 </div></section>
 
@@ -911,6 +1053,114 @@ front = (front + 1) % MAX;</pre>
       <div class="slab"><h4>Streaming and playback</h4><p class="mini">Audio and video players keep a circular buffer of decoded frames. The decoder writes at the rear, the speaker reads from the front, round and round, forever, in a fixed amount of memory.</p></div>
       <div class="slab"><h4>Print spoolers</h4><p class="mini">Jobs queue in arrival order. Fixed memory, no drift, no job skipping the line &mdash; exactly the promise a queue makes.</p></div>
       <div class="slab"><h4>Round-robin scheduling</h4><p class="mini">An operating system gives each process a slice of CPU time, then sends it to the back of the queue. Circular by nature: the list of processes never ends, it just cycles.</p></div>
+    </div>
+
+    <h3>Application &mdash; the doubles stand at the savannah</h3>
+    <p>Lunchtime. One vendor, one line, a handful of spaces to park an order while it waits to be cooked. Every customer gets a ticket number when they join, and tickets get served in the exact order they were handed out &mdash; no cutting the line, no favourites. That promise is a queue's entire job description, and a circular one is the right tool because the stand runs all day: it cannot afford section 4's drift problem eating one array slot per hour.</p>
+
+    <div class="nb">
+      <div class="nbcell md">
+        <div class="nbtag">markdown</div>
+        <p>An order needs two things together &mdash; a ticket number and what was ordered &mdash; so the array holds a small <code>struct</code> instead of a plain <code>int</code>. Everything else is exactly the circular queue from section 4: <code>front</code>, <code>rear</code>, <code>count</code>, and the same <code>% MAX</code> wrap.</p>
+      </div>
+      <div class="nbcell code">
+        <div class="nbtag">In&nbsp;[1]</div>
+<pre class="code"><span class="cm">#define MAX 5</span>
+
+<span class="kw">struct</span> Order {
+    <span class="kw">int</span>  ticket;
+    <span class="kw">char</span> item[20];
+};
+
+<span class="kw">struct</span> Order line[MAX];
+<span class="kw">int</span> front = 0, rear = -1, count = 0;
+<span class="kw">int</span> nextTicket = 1;</pre>
+      </div>
+      <div class="nbcell md">
+        <div class="nbtag">markdown</div>
+        <p><code>enqueueOrder</code> is <code>enqueue</code> from section 4 with one line added at the top &mdash; hand out the next ticket number and never reuse one &mdash; and <code>serveNext</code> is <code>dequeue</code> with a <code>printf</code> so the kitchen actually announces who's next.</p>
+      </div>
+      <div class="nbcell code">
+        <div class="nbtag">In&nbsp;[2]</div>
+<pre class="code"><span class="kw">void</span> <span class="fn">enqueueOrder</span>(<span class="kw">char</span> *item)
+{
+    <span class="kw">if</span> (count == MAX) {
+        <span class="fn">printf</span>(<span class="st">"Sorry, the line is full — wait for a gap.\n"</span>);
+        <span class="kw">return</span>;
+    }
+    rear = (rear + 1) % MAX;                     <span class="cm">// wrap, exactly like section 4</span>
+    line[rear].ticket = nextTicket++;
+    <span class="fn">strcpy</span>(line[rear].item, item);
+    count++;
+    <span class="fn">printf</span>(<span class="st">"Ticket #%d — %s joins the line.\n"</span>, line[rear].ticket, item);
+}
+
+<span class="kw">void</span> <span class="fn">serveNext</span>(<span class="kw">void</span>)
+{
+    <span class="kw">if</span> (count == 0) { <span class="fn">printf</span>(<span class="st">"Nobody's waiting.\n"</span>); <span class="kw">return</span>; }
+    <span class="fn">printf</span>(<span class="st">"Serving ticket #%d: %s\n"</span>, line[front].ticket, line[front].item);
+    front = (front + 1) % MAX;
+    count--;
+}</pre>
+      </div>
+      <div class="nbcell md">
+        <div class="nbtag">markdown</div>
+        <p>Now the lunch rush. Three orders arrive, two get served, then three <em>more</em> arrive &mdash; and that third arrival has nowhere to go but slot 0, the exact slot ticket #1 vacated a moment ago. Watch the ticket numbers in the output, not the array slots, and check they never come out of order.</p>
+      </div>
+      <div class="nbcell code">
+        <div class="nbtag">In&nbsp;[3]</div>
+<pre class="code"><span class="kw">int</span> <span class="fn">main</span>(<span class="kw">void</span>)
+{
+    <span class="fn">enqueueOrder</span>(<span class="st">"doubles"</span>);
+    <span class="fn">enqueueOrder</span>(<span class="st">"aloo pie"</span>);
+    <span class="fn">enqueueOrder</span>(<span class="st">"roti"</span>);
+
+    <span class="fn">serveNext</span>();
+    <span class="fn">serveNext</span>();
+
+    <span class="fn">enqueueOrder</span>(<span class="st">"bake and shark"</span>);
+    <span class="fn">enqueueOrder</span>(<span class="st">"sno-cone"</span>);
+    <span class="fn">enqueueOrder</span>(<span class="st">"corn soup"</span>);          <span class="cm">// <-- this one wraps to slot 0</span>
+
+    <span class="kw">while</span> (count &gt; 0) <span class="fn">serveNext</span>();
+    <span class="kw">return</span> 0;
+}</pre>
+        <button class="btn blue sm nbrun" data-out="qAppOut">&#9654; Run this cell</button>
+        <div class="nbout" id="qAppOut" style="display:none">
+          <div class="nbtag out">Out&nbsp;[3]</div>
+          <div class="readout">Ticket #1 — doubles joins the line.
+Ticket #2 — aloo pie joins the line.
+Ticket #3 — roti joins the line.
+Serving ticket #1: doubles
+Serving ticket #2: aloo pie
+Ticket #4 — bake and shark joins the line.
+Ticket #5 — sno-cone joins the line.
+Ticket #6 — corn soup joins the line.
+Serving ticket #3: roti
+Serving ticket #4: bake and shark
+Serving ticket #5: sno-cone
+Serving ticket #6: corn soup</div>
+        </div>
+      </div>
+      <div class="note win" style="margin:0"><span class="note-t">Read the tickets, not the array</span>
+        <p>Ticket #6's order physically landed in array slot 0 &mdash; the slot ticket #1 used and freed. Nobody serving the line ever notices. The tickets still come out 1, 2, 3, 4, 5, 6, in exact arrival order, because <code>front</code> and <code>rear</code> are doing the bookkeeping so the customer never has to think about the array underneath at all. That is what an ADT buys you.</p>
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 7B</span><h4>Run the stand yourself</h4></div>
+      <div class="lab-body">
+        <p>Five slots, same as the code above. Take orders, serve them, and push it past the wraparound on purpose.</p>
+        <div class="row">
+          <input id="fdVal" class="blank" style="background:#fff;color:var(--ink);border-color:var(--ink);width:16ch;font-size:14px;padding:7px" placeholder="item name" maxlength="14">
+          <button class="btn blue sm" id="fdAdd">enqueueOrder(item)</button>
+          <button class="btn sm" id="fdServe" style="background:var(--bad);border-color:var(--bad)">serveNext()</button>
+          <span class="spacer"></span>
+          <button class="btn ghost sm" id="fdReset">Reset</button>
+        </div>
+        <div class="stage"><div id="fdStage"></div></div>
+        <div class="readout" id="fdOut">front = 0, rear = -1, count = 0 &nbsp;&nbsp;(no orders yet)</div>
+      </div>
     </div>
   </div>
 </div></section>
@@ -1539,6 +1789,195 @@ lastNode-&gt;next = head;    <span class="cm">// instead of NULL</span></pre>
   <div class="col">
     <div class="note"><span class="note-t">And yes, you can combine them</span>
       <p>A <strong>doubly linked circular list</strong> has both: every node points both ways, and the two ends join up. Next on the last item wraps to the first, Previous on the first wraps to the last. That is what a real media player's shuffle-and-repeat queue usually is &mdash; and it is also how many operating systems hold their list of running processes.</p>
+    </div>
+
+    <h3>Application &mdash; build a playlist, three ways</h3>
+    <p>Rather than three separate examples, watch <strong>one</strong> program grow. A music app starts as the simplest possible linked list, then earns a Previous button, then earns Repeat &mdash; and each upgrade is exactly the change this section just taught you, applied to a program that does something you'd actually use.</p>
+
+    <div class="nb">
+      <div class="nbcell md">
+        <div class="nbtag">markdown</div>
+        <p><strong>Stage 1 &mdash; singly linked.</strong> A song, and a pointer to the next one. <code>addSong</code> is <code>insertEnd</code> from section 7, renamed for the job it's doing.</p>
+      </div>
+      <div class="nbcell code">
+        <div class="nbtag">In&nbsp;[1]</div>
+<pre class="code"><span class="kw">struct</span> Song {
+    <span class="kw">char</span> title[30];
+    <span class="kw">struct</span> Song *next;
+};
+<span class="kw">struct</span> Song *head = NULL;
+
+<span class="kw">void</span> <span class="fn">addSong</span>(<span class="kw">char</span> *title)
+{
+    <span class="kw">struct</span> Song *n = (<span class="kw">struct</span> Song*)<span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="kw">struct</span> Song));
+    <span class="fn">strcpy</span>(n-&gt;title, title);
+    n-&gt;next = NULL;
+
+    <span class="kw">if</span> (head == NULL) { head = n; <span class="kw">return</span>; }
+
+    <span class="kw">struct</span> Song *temp = head;
+    <span class="kw">while</span> (temp-&gt;next != NULL) temp = temp-&gt;next;   <span class="cm">// walk to the last node</span>
+    temp-&gt;next = n;
+}
+
+<span class="kw">void</span> <span class="fn">playAll</span>(<span class="kw">void</span>)
+{
+    <span class="kw">struct</span> Song *temp = head;
+    <span class="kw">while</span> (temp != NULL) {
+        <span class="fn">printf</span>(<span class="st">"Now playing: %s\n"</span>, temp-&gt;title);
+        temp = temp-&gt;next;
+    }
+}</pre>
+      </div>
+      <div class="nbcell code">
+        <div class="nbtag">In&nbsp;[2]</div>
+<pre class="code"><span class="kw">int</span> <span class="fn">main</span>(<span class="kw">void</span>)
+{
+    <span class="fn">addSong</span>(<span class="st">"Carnival Road"</span>);
+    <span class="fn">addSong</span>(<span class="st">"Island Breeze"</span>);
+    <span class="fn">addSong</span>(<span class="st">"Fete Anthem"</span>);
+    <span class="fn">addSong</span>(<span class="st">"Sunset Wine"</span>);
+
+    <span class="fn">playAll</span>();
+    <span class="kw">return</span> 0;
+}</pre>
+        <button class="btn blue sm nbrun" data-out="plOut1">&#9654; Run this cell</button>
+        <div class="nbout" id="plOut1" style="display:none">
+          <div class="nbtag out">Out&nbsp;[2]</div>
+          <div class="readout">Now playing: Carnival Road
+Now playing: Island Breeze
+Now playing: Fete Anthem
+Now playing: Sunset Wine</div>
+        </div>
+      </div>
+      <div class="nbcell md">
+        <div class="nbtag">markdown</div>
+        <p>Works &mdash; but there's no way to go back a song. You already know why: this is the exact limitation from the start of this section. There is no door behind you.</p>
+      </div>
+      <div class="note analogy" style="margin:0 0 22px"><span class="note-t">Stage 2 &mdash; give it a Previous button</span>
+        <p>Fix from Lab 15: a second pointer, <code>prev</code>, pointing backwards. And rather than replay the whole list every time, keep one pointer, <code>current</code>, that remembers where playback actually is right now.</p>
+      </div>
+      <div class="nbcell code">
+        <div class="nbtag">In&nbsp;[3]</div>
+<pre class="code"><span class="kw">struct</span> Song {
+    <span class="kw">char</span> title[30];
+    <span class="kw">struct</span> Song *next;
+    <span class="kw">struct</span> Song *prev;              <span class="cm">// <-- the only new field</span>
+};
+<span class="kw">struct</span> Song *head = NULL, *current = NULL;
+
+<span class="kw">void</span> <span class="fn">addSong</span>(<span class="kw">char</span> *title)
+{
+    <span class="kw">struct</span> Song *n = (<span class="kw">struct</span> Song*)<span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="kw">struct</span> Song));
+    <span class="fn">strcpy</span>(n-&gt;title, title);
+    n-&gt;next = NULL;
+
+    <span class="kw">if</span> (head == NULL) { n-&gt;prev = NULL; head = n; current = n; <span class="kw">return</span>; }
+
+    <span class="kw">struct</span> Song *temp = head;
+    <span class="kw">while</span> (temp-&gt;next != NULL) temp = temp-&gt;next;
+    temp-&gt;next = n;
+    n-&gt;prev = temp;                    <span class="cm">// <-- and the one new line inside addSong</span>
+}
+
+<span class="kw">void</span> <span class="fn">playNext</span>(<span class="kw">void</span>)
+{
+    <span class="kw">if</span> (current-&gt;next != NULL) current = current-&gt;next;
+    <span class="fn">printf</span>(<span class="st">"Now playing: %s\n"</span>, current-&gt;title);
+}
+
+<span class="kw">void</span> <span class="fn">playPrevious</span>(<span class="kw">void</span>)
+{
+    <span class="kw">if</span> (current-&gt;prev != NULL) current = current-&gt;prev;
+    <span class="fn">printf</span>(<span class="st">"Now playing: %s\n"</span>, current-&gt;title);
+}</pre>
+      </div>
+      <div class="nbcell code">
+        <div class="nbtag">In&nbsp;[4]</div>
+<pre class="code"><span class="kw">int</span> <span class="fn">main</span>(<span class="kw">void</span>)
+{
+    <span class="fn">addSong</span>(<span class="st">"Carnival Road"</span>); <span class="fn">addSong</span>(<span class="st">"Island Breeze"</span>);
+    <span class="fn">addSong</span>(<span class="st">"Fete Anthem"</span>);    <span class="fn">addSong</span>(<span class="st">"Sunset Wine"</span>);
+
+    <span class="fn">printf</span>(<span class="st">"Now playing: %s\n"</span>, current-&gt;title);   <span class="cm">// start on song 1</span>
+    <span class="fn">playNext</span>(); <span class="fn">playNext</span>(); <span class="fn">playNext</span>();          <span class="cm">// forward to song 4</span>
+    <span class="fn">playPrevious</span>(); <span class="fn">playPrevious</span>();                 <span class="cm">// back to song 2</span>
+    <span class="kw">return</span> 0;
+}</pre>
+        <button class="btn blue sm nbrun" data-out="plOut2">&#9654; Run this cell</button>
+        <div class="nbout" id="plOut2" style="display:none">
+          <div class="nbtag out">Out&nbsp;[4]</div>
+          <div class="readout">Now playing: Carnival Road
+Now playing: Island Breeze
+Now playing: Fete Anthem
+Now playing: Sunset Wine
+Now playing: Fete Anthem
+Now playing: Island Breeze</div>
+        </div>
+      </div>
+      <div class="note analogy" style="margin:0 0 22px"><span class="note-t">Stage 3 &mdash; give it Repeat</span>
+        <p>Right now, pressing Next on the last song does nothing &mdash; <code>current-&gt;next</code> is <code>NULL</code>, so the guard blocks it. Repeat means the last song should lead back to the first, exactly like Lab 17. One function, called once, after the list is built.</p>
+      </div>
+      <div class="nbcell code">
+        <div class="nbtag">In&nbsp;[5]</div>
+<pre class="code"><span class="kw">void</span> <span class="fn">makeCircular</span>(<span class="kw">void</span>)
+{
+    <span class="kw">struct</span> Song *temp = head;
+    <span class="kw">while</span> (temp-&gt;next != NULL) temp = temp-&gt;next;   <span class="cm">// walk to the last node</span>
+    temp-&gt;next = head;                              <span class="cm">// last points forward to head</span>
+    head-&gt;prev  = temp;                              <span class="cm">// head points back to last</span>
+}
+
+<span class="kw">void</span> <span class="fn">playNext</span>(<span class="kw">void</span>)
+{
+    current = current-&gt;next;     <span class="cm">// no guard needed — it always leads somewhere now</span>
+    <span class="fn">printf</span>(<span class="st">"Now playing: %s\n"</span>, current-&gt;title);
+}</pre>
+      </div>
+      <div class="nbcell code">
+        <div class="nbtag">In&nbsp;[6]</div>
+<pre class="code"><span class="kw">int</span> <span class="fn">main</span>(<span class="kw">void</span>)
+{
+    <span class="fn">addSong</span>(<span class="st">"Carnival Road"</span>); <span class="fn">addSong</span>(<span class="st">"Island Breeze"</span>);
+    <span class="fn">addSong</span>(<span class="st">"Fete Anthem"</span>);    <span class="fn">addSong</span>(<span class="st">"Sunset Wine"</span>);
+    <span class="fn">makeCircular</span>();
+
+    <span class="fn">printf</span>(<span class="st">"Now playing: %s\n"</span>, current-&gt;title);
+    <span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; 5; i++) <span class="fn">playNext</span>();  <span class="cm">// five songs' worth of Next, on a 4-song list</span>
+    <span class="kw">return</span> 0;
+}</pre>
+        <button class="btn blue sm nbrun" data-out="plOut3">&#9654; Run this cell</button>
+        <div class="nbout" id="plOut3" style="display:none">
+          <div class="nbtag out">Out&nbsp;[6]</div>
+          <div class="readout">Now playing: Carnival Road
+Now playing: Island Breeze
+Now playing: Fete Anthem
+Now playing: Sunset Wine
+Now playing: Carnival Road
+Now playing: Island Breeze</div>
+        </div>
+      </div>
+      <div class="note win" style="margin:0"><span class="note-t">Five calls to playNext, four songs</span>
+        <p>The list only has four nodes, but the fourth <code>playNext()</code> call still returns a title &mdash; the wrap from Sunset Wine back to Carnival Road. Nothing crashed, nothing printed NULL. That's <code>next</code> pointing at <code>head</code> instead of <code>NULL</code>, doing exactly what section 11 said it would.</p>
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind">LAB 17B</span><h4>The same remote, three different players</h4></div>
+      <div class="lab-body">
+        <p>Same four songs, same Next/Previous buttons. Switch the mode and watch what those same two buttons are actually allowed to do change underneath you.</p>
+        <div class="row">
+          <button class="btn blue sm" data-plmode="singly">Singly linked</button>
+          <button class="btn ghost sm" data-plmode="doubly">Doubly linked</button>
+          <button class="btn ghost sm" data-plmode="circular">Doubly + circular (real repeat mode)</button>
+        </div>
+        <div class="stage"><div id="plStage"></div></div>
+        <div class="row">
+          <button class="btn ghost sm" id="plPrev">&larr; playPrevious()</button>
+          <button class="btn blue" id="plNext">playNext() &rarr;</button>
+        </div>
+        <div class="readout" id="plOut">Now playing: Carnival Road</div>
+      </div>
     </div>
 
     <div class="lab">
@@ -2785,6 +3224,129 @@ renderMCQ($('#bugQuiz'),[
       : `  ${Y('Worth another pass from the top.')} Work the labs with the buttons rather than reading them, especially Demo A, Lab 2, Lab 10 and Lab 17.`;
     say(score,m);
   });
+})();
+
+/* ============================================================ notebook Run buttons (shared by all three applications) */
+(function(){
+  $$('.nbrun').forEach(b=>{
+    b.onclick=()=>{
+      const out=$('#'+b.dataset.out); if(!out) return;
+      out.style.display='block';
+      b.disabled=true; b.textContent='Ran ✓';
+      out.scrollIntoView({block:'nearest'});
+    };
+  });
+})();
+
+/* ============================================================ LAB 4B — RPN calculator */
+(function(){
+  const toks=$('#rpnTokens'), stk=$('#rpnStack'), out=$('#rpnOut2'); if(!stk) return;
+  let expr='', T=[], i=0, S=[];
+  function draw(anim){
+    toks.innerHTML=T.map((t,k)=>{
+      const col=k<i?'var(--ink3)':k===i?'var(--live)':'var(--ink)';
+      const w=k===i?'font-weight:700;text-decoration:underline':'';
+      return `<span style="color:${col};${w}">${t}</span>`;
+    }).join('&nbsp;&nbsp;');
+    stk.innerHTML=stackHTML(S,8,anim);
+  }
+  function load(str){
+    expr=(str||'').trim(); T=expr.split(/\s+/).filter(Boolean); i=0; S=[];
+    draw(-1);
+    $('#rpnStep').disabled=false; $('#rpnStep').textContent='Next token';
+    say(out,`Loaded ${K(expr)} — stack empty, ready.`);
+  }
+  function fin(msg){ $('#rpnStep').disabled=true; $('#rpnStep').textContent='Finished'; say(out,msg); }
+  $('#rpnStep').onclick=()=>{
+    if(i>=T.length){
+      draw(-1);
+      return fin(S.length===1
+        ? `${G('Done.')} One value left on the stack — that is the answer: ${G(S[0])}`
+        : `${R('Malformed expression.')} Finished with ${S.length} values on the stack instead of 1.`);
+    }
+    const t=T[i]; i++;
+    if(t.length===1 && '+-*/'.includes(t)){
+      if(S.length<2){ draw(-1); return fin(`${R('Not enough operands.')} Read ${K(t)} but the stack has fewer than two values.`); }
+      const b=S.pop(), a=S.pop();
+      let r;
+      if(t==='+') r=a+b; else if(t==='-') r=a-b; else if(t==='*') r=a*b; else r=Math.trunc(a/b);
+      S.push(r); draw(S.length-1);
+      say(out,`Read ${K(t)} — pop ${Y('b='+b)}, pop ${Y('a='+a)}, push ${G('a '+t+' b = '+r)}.\nStack: ${S.join(' ')}`);
+    } else {
+      const n=parseInt(t,10);
+      if(isNaN(n)){ draw(-1); return fin(`${R('Unrecognised token')} ${K(t)}.`); }
+      S.push(n); draw(S.length-1);
+      say(out,`Read ${K(t)} — a number, so ${G('push')} it.\nStack: ${S.join(' ')}`);
+    }
+  };
+  $('#rpnLoad').onclick=()=>load($('#rpnIn').value);
+  $('#rpnReset').onclick=()=>load(expr);
+  $$('[data-rpn]').forEach(b=>b.onclick=()=>{ $('#rpnIn').value=b.dataset.rpn; load(b.dataset.rpn); });
+  load($('#rpnIn').value);
+})();
+
+/* ============================================================ LAB 7B — the doubles stand */
+(function(){
+  const stage=$('#fdStage'), out=$('#fdOut'); if(!stage) return;
+  const MAX=5; let front=0, rear=-1, count=0, cells=new Array(MAX).fill(null), nextTicket=1;
+  function draw(){
+    let m='<div class="qmarks">', c='<div class="qtrack">', ix='<div class="qidx">';
+    for(let k=0;k<MAX;k++){
+      const isF=count>0&&k===front, isR=count>0&&k===rear;
+      m += (isF&&isR)?'<span class="qmark f">front/rear</span>'
+         : isF?'<span class="qmark f">front</span>'
+         : isR?'<span class="qmark r">rear</span>':'<span class="qmark"></span>';
+      c+=`<div class="qcell ${cells[k]?'filled':''}">${cells[k]?'#'+cells[k].ticket:'·'}</div>`;
+      ix+=`<span>[${k}]</span>`;
+    }
+    stage.innerHTML=m+'</div>'+c+'</div>'+ix+'</div>';
+  }
+  const st=()=>`front = ${front}, rear = ${rear}, count = ${count}`;
+  $('#fdAdd').onclick=()=>{
+    const item=($('#fdVal').value||'').trim();
+    if(!item){ say(out,`${Y('Type an item name to order.')}`); return; }
+    if(count===MAX){ draw(); say(out,`${R("Sorry, the line is full — wait for a gap.")}\n${st()}`); return; }
+    rear=(rear+1)%MAX; const t=nextTicket++; cells[rear]={ticket:t,item}; count++;
+    draw(); $('#fdVal').value='';
+    say(out,`${K('rear = (rear + 1) % '+MAX)} → ${G(rear)}. Ticket ${G('#'+t)} — ${item} joins the line.\n${st()}`);
+  };
+  $('#fdServe').onclick=()=>{
+    if(count===0){ draw(); say(out,`${R("Nobody's waiting.")}\n${st()}`); return; }
+    const o=cells[front]; cells[front]=null; front=(front+1)%MAX; count--;
+    draw(); say(out,`Serving ticket ${G('#'+o.ticket)}: ${G(o.item)}.\n${st()}\n\nSlot is free for reuse now.`);
+  };
+  $('#fdReset').onclick=()=>{ front=0;rear=-1;count=0;cells=new Array(MAX).fill(null);nextTicket=1; draw(); say(out,'front = 0, rear = -1, count = 0 &nbsp;&nbsp;(no orders yet)'); };
+  draw();
+})();
+
+/* ============================================================ LAB 17B — the same remote, three players */
+(function(){
+  const stage=$('#plStage'), out=$('#plOut'); if(!stage) return;
+  const SONGS=['Carnival Road','Island Breeze','Fete Anthem','Sunset Wine'];
+  let mode='singly', cur=0;
+  function draw(){
+    const nodes=SONGS.map((t,k)=>({v:t, tags:k===cur?['current']:[], cls:k===cur?'hot':''}));
+    stage.innerHTML=chain(nodes, mode==='circular' ? {endNull:false} : {})
+      + (mode==='circular' ? '<p class="mini" style="margin:14px 0 0">Circular: the last node’s <code>next</code> points back at <code>head</code> — there is no NULL left to draw.</p>' : '');
+    $('#plPrev').disabled = mode==='singly';
+  }
+  $('#plNext').onclick=()=>{
+    if(mode==='circular') cur=(cur+1)%SONGS.length;
+    else if(cur<SONGS.length-1) cur++;
+    else { say(out,`${Y('End of the playlist.')} A singly linked list has no way to go further — next is NULL.`); return; }
+    draw(); say(out,`Now playing: ${G(SONGS[cur])}`);
+  };
+  $('#plPrev').onclick=()=>{
+    if(mode==='singly') return;
+    if(cur>0) cur--;
+    draw(); say(out,`Now playing: ${G(SONGS[cur])}`);
+  };
+  $$('[data-plmode]').forEach(b=>b.onclick=()=>{
+    mode=b.dataset.plmode; cur=0;
+    $$('[data-plmode]').forEach(x=>x.classList.toggle('blue',x===b));
+    draw(); say(out,`Switched to <strong>${mode}</strong>. Now playing: ${G(SONGS[0])}`);
+  });
+  draw(); say(out,`Now playing: ${G(SONGS[0])}`);
 })();
 
 /* ============================================================ nav + progress */
