@@ -18,7 +18,7 @@
 <meta name="lesson:sections"    content="15">
 <meta name="lesson:topics"      content="Stacks,Queues,Circular queues,Linked lists,Singly linked,Doubly linked,Circular linked,ADT,Arrays vs lists">
 <meta name="lesson:activities"  content="Bracket checker,String reversal,RPN calculator,Circular queue,Doubles stand,Linked list traversal,Doubly linked list,Playlist builder,Unit test">
-<meta name="lesson:updated"     content="2026-09-17">
+<meta name="lesson:updated"     content="2026-09-18">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1001,9 +1001,53 @@ footer{margin-top:40px}
       <p>The fix is to bend the chalk line into a <strong>circle</strong>. Run off the end, come back to the start.</p>
     </div>
 
-    <p>One operator does it. When a marker would run off the end, wrap it to 0 with the modulo operator:</p>
-<pre class="code">rear  = (rear  + 1) % MAX;    <span class="cm">// 7 -&gt; 0 when MAX is 8</span>
-front = (front + 1) % MAX;</pre>
+    <p>One operator does it: the <strong>modulo operator</strong>, written <code>%</code>. Before it goes anywhere
+    near <code>rear</code>, it is worth knowing that <code>%</code> only ever does one thing: it gives you the
+    <strong>remainder left over after division</strong>, nothing more exotic than that. <span class="mono">13 % 5</span>
+    is asking "13 divided by 5 &mdash; what is left over?" 5 goes into 13 twice, using up 10, which leaves
+    <strong>3</strong>. So <span class="mono">13 % 5 = 3</span>. That is the entire operator. No circles, no
+    arrays yet &mdash; just leftovers.</p>
+
+    <div class="note analogy"><span class="note-t">You already compute this every day, on a clock</span>
+      <p>A clock face is modulo 12 wearing a disguise. It is 10 o'clock and someone asks you what time it will
+      be in 4 hours. <span class="mono">10 + 4 = 14</span>, but a clock only has twelve numbers on it &mdash; it
+      cannot show 14. So it shows whatever is <em>left over</em> once it has gone all the way round once:
+      <span class="mono">14 % 12 = 2</span>. Two o'clock. You have been computing modulo since you were old
+      enough to read a clock; nobody ever bothered to tell you that was its name.</p>
+      <table class="cmp" style="margin-top:14px">
+        <tr><th>What you'd say</th><th>What the clock is really computing</th><th>Why</th></tr>
+        <tr><td>9 o'clock + 5 hours = 2 o'clock</td><td class="mono">(9 + 5) % 12 = 2</td><td>14 goes round once, 2 left over</td></tr>
+        <tr><td>11 o'clock + 3 hours = 2 o'clock</td><td class="mono">(11 + 3) % 12 = 2</td><td>14 goes round once, 2 left over</td></tr>
+        <tr><td>8 o'clock + 4 hours = 12 o'clock</td><td class="mono">(8 + 4) % 12 = 0</td><td>divides exactly &mdash; nothing left over, back to the start</td></tr>
+      </table>
+    </div>
+
+    <p><code>rear</code> is going to live on a clock face with <code>MAX</code> hours on it instead of 12. Every
+    time you add 1, you are asking the exact question a clock asks: <em>does this number still fit, or has it
+    gone all the way round?</em></p>
+<pre class="code">rear  = (rear  + 1) % MAX;    <span class="cm">// ask the clock: does rear+1 still fit, or has it gone round?</span>
+front = (front + 1) % MAX;    <span class="cm">// 7 + 1 = 8, but 8 % 8 = 0 — round it goes</span></pre>
+
+    <div class="lab" style="margin:20px 0 30px">
+      <div class="lab-head"><span class="lab-kind solo">TRY IT</span><h4>Watch a number wrap, before the queue gets involved</h4></div>
+      <div class="lab-body">
+        <p>Eight boxes, numbered 0 to 7 &mdash; the same eight slots <code>rear</code> is about to live in. Press
+        <b>+1 step</b> and watch the raw step count climb forever while the highlighted box cycles back to 0
+        every eighth press. That highlighted box <em>is</em> <span class="mono">steps % 8</span>, recalculated
+        fresh every single time.</p>
+        <div class="row"><button class="btn blue" id="modStep">+1 step</button><button class="btn ghost sm" id="modReset">Reset</button></div>
+        <div class="stage"><div id="modStage"></div></div>
+        <div class="readout" id="modOut">steps = 0, so 0 % 8 = 0</div>
+      </div>
+    </div>
+
+    <p>Notice what that guarantees. No matter how many steps you take &mdash; eight, eighty, eight thousand
+    &mdash; the answer to <span class="mono">steps % 8</span> can only ever be 0, 1, 2, 3, 4, 5, 6 or 7. It can
+    never be 8. It can never be &minus;1. That is the whole fix for drift, in one sentence: <code>%</code>
+    makes it <strong>physically impossible</strong> for <code>rear</code> to point anywhere outside the array,
+    forever &mdash; which is exactly what bending the chalk line into a circle meant, just written as arithmetic
+    instead of a picture.</p>
+
     <p>But now a new problem appears. In a circle, <code>front == rear</code> happens when the queue is <strong>full</strong> and also when it is <strong>empty</strong> &mdash; the markers meet either way. The simplest fix is to keep a <code>count</code> of how many items are actually stored:</p>
 
     <div class="grid2">
@@ -2498,6 +2542,25 @@ orderGame('[data-order-game="pushOrder"]',['a','b','e','c','d'],'#pshCheck','#ps
 orderGame('[data-order-game="enqOrder"]',['a','b','d','c','e'],'#enqCheck','#enqReset','#enqOut',
  `${G('Correct.')}\n1. Check if the queue is full\n2. If full, print Overflow and return\n3. rear = rear + 1\n4. queue[rear] = data\n5. Report success\n\nSame shape as push(). ${K('rear')} points at the last item stored, so it moves to the empty slot ${Y('before')} you write.`,
  `${R('Not yet.')}\n• The full-check must happen ${Y('before anything is written')}.\n• rear points at the ${Y('last item stored')}, not the next free slot — so which comes first, moving rear or writing?`);
+
+/* ============================================================ TRY IT — modulo wrap, isolated from the queue */
+(function(){
+  const stage=$('#modStage'), out=$('#modOut'); if(!stage) return;
+  const N=8; let steps=0;
+  function draw(){
+    const pos=steps%N;
+    let c='<div class="qtrack">', ix='<div class="qidx">';
+    for(let i=0;i<N;i++){
+      c+=`<div class="qcell ${i===pos?'filled':''}">${i}</div>`;
+      ix+=`<span>${i}</span>`;
+    }
+    stage.innerHTML=c+'</div>'+ix+'</div>';
+    say(out,`steps = ${K(steps)}, so ${K(steps+' % '+N)} = ${G(pos)}${steps>0&&pos===0?'  '+Y('— gone all the way round again')+'.':''}`);
+  }
+  $('#modStep').addEventListener('click',()=>{ steps++; draw(); });
+  $('#modReset').addEventListener('click',()=>{ steps=0; draw(); });
+  draw();
+})();
 
 /* ============================================================ LAB 7 — circular queue */
 (function(){
