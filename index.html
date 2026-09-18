@@ -17,7 +17,7 @@
 <meta name="lesson:questions"   content="30">
 <meta name="lesson:sections"    content="15">
 <meta name="lesson:topics"      content="Stacks,Queues,Circular queues,Linked lists,Singly linked,Doubly linked,Circular linked,ADT,Arrays vs lists">
-<meta name="lesson:activities"  content="Bracket checker,String reversal,RPN calculator,Circular queue,Doubles stand,Linked list traversal,Doubly linked list,Playlist builder,Unit test">
+<meta name="lesson:activities"  content="Bracket checker,String reversal,RPN calculator,Circular queue,BBQ stand at Warner Park,Linked list traversal,Doubly linked list,Playlist builder,Unit test">
 <meta name="lesson:updated"     content="2026-09-18">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1106,8 +1106,8 @@ front = (front + 1) % MAX;    <span class="cm">// 7 + 1 = 8, but 8 % 8 = 0 — r
       <div class="slab"><h4>Round-robin scheduling</h4><p class="mini">An operating system gives each process a slice of CPU time, then sends it to the back of the queue. Circular by nature: the list of processes never ends, it just cycles.</p></div>
     </div>
 
-    <h3>Application &mdash; the doubles stand at the savannah</h3>
-    <p>Lunchtime. One vendor, one line, a handful of spaces to park an order while it waits to be cooked. Every customer gets a ticket number when they join, and tickets get served in the exact order they were handed out &mdash; no cutting the line, no favourites. That promise is a queue's entire job description, and a circular one is the right tool because the stand runs all day: it cannot afford section 4's drift problem eating one array slot per hour.</p>
+    <h3>Application &mdash; the BBQ chicken stand at Warner Park</h3>
+    <p>Match day. The Patriots are out in the middle, the ground is full, and there is exactly one BBQ chicken stand working the boundary line, with a handful of spaces to park an order while it is on the grill. Every customer gets a ticket number when they join, and tickets get served in the exact order they were handed out &mdash; no cutting the line, no favours for anyone who claims to know the groundsman. That promise is a queue's entire job description, and a circular one is the right tool because the stand runs the whole match: it cannot afford section 4's drift problem eating one array slot every over.</p>
 
     <div class="nb">
       <div class="nbcell md">
@@ -1156,22 +1156,22 @@ front = (front + 1) % MAX;    <span class="cm">// 7 + 1 = 8, but 8 % 8 = 0 — r
       </div>
       <div class="nbcell md">
         <div class="nbtag">markdown</div>
-        <p>Now the lunch rush. Three orders arrive, two get served, then three <em>more</em> arrive &mdash; and that third arrival has nowhere to go but slot 0, the exact slot ticket #1 vacated a moment ago. Watch the ticket numbers in the output, not the array slots, and check they never come out of order.</p>
+        <p>Now the drinks-break rush. Three orders arrive, two get served, then three <em>more</em> arrive as the Patriots take a wicket and the whole stand empties &mdash; and that third arrival has nowhere to go but slot 0, the exact slot ticket #1 vacated a moment ago. Watch the ticket numbers in the output, not the array slots, and check they never come out of order.</p>
       </div>
       <div class="nbcell code">
         <div class="nbtag">In&nbsp;[3]</div>
 <pre class="code"><span class="kw">int</span> <span class="fn">main</span>(<span class="kw">void</span>)
 {
-    <span class="fn">enqueueOrder</span>(<span class="st">"doubles"</span>);
-    <span class="fn">enqueueOrder</span>(<span class="st">"aloo pie"</span>);
-    <span class="fn">enqueueOrder</span>(<span class="st">"roti"</span>);
+    <span class="fn">enqueueOrder</span>(<span class="st">"bbq chicken"</span>);
+    <span class="fn">enqueueOrder</span>(<span class="st">"conch fritters"</span>);
+    <span class="fn">enqueueOrder</span>(<span class="st">"saltfish cakes"</span>);
 
     <span class="fn">serveNext</span>();
     <span class="fn">serveNext</span>();
 
-    <span class="fn">enqueueOrder</span>(<span class="st">"bake and shark"</span>);
-    <span class="fn">enqueueOrder</span>(<span class="st">"sno-cone"</span>);
-    <span class="fn">enqueueOrder</span>(<span class="st">"corn soup"</span>);          <span class="cm">// <-- this one wraps to slot 0</span>
+    <span class="fn">enqueueOrder</span>(<span class="st">"johnny cakes"</span>);
+    <span class="fn">enqueueOrder</span>(<span class="st">"sky juice"</span>);
+    <span class="fn">enqueueOrder</span>(<span class="st">"roast corn"</span>);          <span class="cm">// <-- this one wraps to slot 0</span>
 
     <span class="kw">while</span> (count &gt; 0) <span class="fn">serveNext</span>();
     <span class="kw">return</span> 0;
@@ -1179,18 +1179,18 @@ front = (front + 1) % MAX;    <span class="cm">// 7 + 1 = 8, but 8 % 8 = 0 — r
         <button class="btn blue sm nbrun" data-out="qAppOut">&#9654; Run this cell</button>
         <div class="nbout" id="qAppOut" style="display:none">
           <div class="nbtag out">Out&nbsp;[3]</div>
-          <div class="readout">Ticket #1 — doubles joins the line.
-Ticket #2 — aloo pie joins the line.
-Ticket #3 — roti joins the line.
-Serving ticket #1: doubles
-Serving ticket #2: aloo pie
-Ticket #4 — bake and shark joins the line.
-Ticket #5 — sno-cone joins the line.
-Ticket #6 — corn soup joins the line.
-Serving ticket #3: roti
-Serving ticket #4: bake and shark
-Serving ticket #5: sno-cone
-Serving ticket #6: corn soup</div>
+          <div class="readout">Ticket #1 — bbq chicken joins the line.
+Ticket #2 — conch fritters joins the line.
+Ticket #3 — saltfish cakes joins the line.
+Serving ticket #1: bbq chicken
+Serving ticket #2: conch fritters
+Ticket #4 — johnny cakes joins the line.
+Ticket #5 — sky juice joins the line.
+Ticket #6 — roast corn joins the line.
+Serving ticket #3: saltfish cakes
+Serving ticket #4: johnny cakes
+Serving ticket #5: sky juice
+Serving ticket #6: roast corn</div>
         </div>
       </div>
       <div class="note win" style="margin:0"><span class="note-t">Read the tickets, not the array</span>
@@ -1199,7 +1199,7 @@ Serving ticket #6: corn soup</div>
     </div>
 
     <div class="lab">
-      <div class="lab-head"><span class="lab-kind">LAB 7B</span><h4>Run the stand yourself</h4></div>
+      <div class="lab-head"><span class="lab-kind">LAB 7B</span><h4>Run the Warner Park stand yourself</h4></div>
       <div class="lab-body">
         <p>Five slots, same as the code above. Take orders, serve them, and push it past the wraparound on purpose.</p>
         <div class="row">
@@ -3355,7 +3355,7 @@ renderMCQ($('#bugQuiz'),[
   load($('#rpnIn').value);
 })();
 
-/* ============================================================ LAB 7B — the doubles stand */
+/* ============================================================ LAB 7B — the Warner Park BBQ stand */
 (function(){
   const stage=$('#fdStage'), out=$('#fdOut'); if(!stage) return;
   const MAX=5; let front=0, rear=-1, count=0, cells=new Array(MAX).fill(null), nextTicket=1;
