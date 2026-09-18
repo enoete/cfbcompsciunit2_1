@@ -1602,6 +1602,70 @@ newNode = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<
       <p>A correct version tests for it first:</p>
 <pre class="code" style="margin-bottom:0"><span class="kw">if</span> (head == NULL) { head = newNode; <span class="kw">return</span>; }   <span class="cm">// empty list: the new node IS the list</span></pre>
     </div>
+
+    <h3>Insert in the middle</h3>
+    <p>Front and back are really the same trick from two different ends. The general case is: find <em>some</em> node by walking with <code>search()</code>'s loop, then splice the new node in right after it. No special-casing the front, no special-casing the back &mdash; just find the spot and attach.</p>
+
+    <div class="note analogy"><span class="note-t">Back to the scavenger hunt, one more time</span>
+      <p>You want to slip a new clue into the hunt right after the library card, without touching anything before it or losing anything after it. Walk the hunt exactly the way <code>search()</code> already showed you, and stop the moment you are <strong>standing on</strong> the library card.</p>
+      <p>From there it's the same two-line problem as inserting at the front, just facing the other way. The new card needs to inherit whatever the library card was pointing at <em>before</em> you let the library card point at the new card instead. Get that order backwards and you cut the hunt in half.</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-head"><span class="lab-kind solo">LAB 12B</span><h4>Order the two statements &mdash; then run both versions</h4></div>
+      <div class="lab-body">
+        <p><code>temp</code> has already walked the list and is standing on the node you want to insert after. Drag the two statements into the order you think is right, then press Run. Then try the wrong order &mdash; on purpose.</p>
+        <div class="dnd" data-order-game="midOrder">
+          <div>
+            <div class="pane-t">Statements</div>
+            <div class="pool" data-pool>
+              <div class="chip" draggable="true" data-id="a">newNode-&gt;next = temp-&gt;next;</div>
+              <div class="chip" draggable="true" data-id="b">temp-&gt;next = newNode;</div>
+            </div>
+          </div>
+          <div>
+            <div class="pane-t">Your order</div>
+            <div class="slots">
+              <div class="dropslot" data-slot="0"><span class="idx">1</span></div>
+              <div class="dropslot" data-slot="1"><span class="idx">2</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn blue" id="midRun">Run my order</button>
+          <button class="btn ghost sm" id="midReset">Reset</button>
+        </div>
+        <div class="stage"><div id="midStage"></div></div>
+        <div class="readout" id="midOut">Place both statements, then press Run.</div>
+      </div>
+    </div>
+
+    <div class="note win"><span class="note-t">The same rule, facing the other way</span>
+      <p>Insert-at-front broke when <code>head</code> got overwritten before the new node had a copy of what it used to point at. This breaks the same way, just pointed forward: overwrite <code>temp-&gt;next</code> before <code>newNode</code> has a copy of it, and everything past that point is gone. One sentence still covers every pointer bug in this topic: <strong>never overwrite a pointer until something else is already holding what it pointed at.</strong></p>
+    </div>
+
+    <details class="rev"><summary>The complete function</summary><div class="rev-body">
+<pre class="code"><span class="kw">void</span> <span class="fn">insertAfter</span>(<span class="kw">int</span> key, <span class="kw">int</span> data)
+{
+    <span class="kw">struct</span> node *temp = head, *newNode;
+
+    <span class="kw">while</span> (temp != NULL &amp;&amp; temp-&gt;data != key)   <span class="cm">// walk until you find it</span>
+        temp = temp-&gt;next;
+
+    <span class="kw">if</span> (temp == NULL) {                              <span class="cm">// walked off the end, key wasn't there</span>
+        <span class="fn">printf</span>(<span class="st">"%d not found\n"</span>, key);
+        <span class="kw">return</span>;
+    }
+
+    newNode = (<span class="kw">struct</span> node*)<span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="kw">struct</span> node));
+    <span class="kw">if</span> (newNode == NULL) { <span class="fn">printf</span>(<span class="st">"Out of memory\n"</span>); <span class="kw">return</span>; }
+
+    newNode-&gt;data = data;
+    newNode-&gt;next = temp-&gt;next;   <span class="cm">// 1. attach to the list FIRST</span>
+    temp-&gt;next = newNode;         <span class="cm">// 2. then reroute temp</span>
+}</pre>
+      <p class="mini">Notice what's missing: no test for an empty list, no test for inserting at position zero. Both are handled elsewhere (<code>insertFront</code>) or don't apply here &mdash; if <code>key</code> isn't in the list, the loop simply walks off the end and <code>temp</code> tells you so. The function fails honestly instead of guessing.</p>
+    </div></details>
   </div>
 </div></section>
 
@@ -2085,7 +2149,7 @@ Now playing: Island Breeze</div>
       <div class="slab"><h4>2. <code>int sum()</code></h4><p class="mini">Add up every <code>data</code> value. Same loop, different accumulator. If you can write count(), you can write this in thirty seconds.</p></div>
       <div class="slab"><h4>3. <code>int findMax()</code></h4><p class="mini">Return the largest value. Start with <code>max = head-&gt;data</code>, not with 0 &mdash; otherwise a list of negative numbers returns the wrong answer.</p></div>
       <div class="slab"><h4>4. <code>void deleteValue(int key)</code></h4><p class="mini">Delete the first node containing <code>key</code>, wherever it is. You'll need the two-pointer trick from Lab 14, plus a special case when the match is the head itself.</p></div>
-      <div class="slab"><h4>5. <code>void insertAfter(int key, int data)</code></h4><p class="mini">Find the node holding <code>key</code>, then splice a new node in behind it. Two lines, in an order you should now be suspicious about.</p></div>
+      <div class="slab"><h4>5. <code>void insertBefore(int key, int data)</code></h4><p class="mini">The harder sibling of the lab you just did &mdash; insert a node <em>before</em> the one holding <code>key</code>, not after. A one-pointer walk won't save you: by the time you're standing on the match, it's too late to fix the node behind it. You'll want the two-pointer trick from Lab 14.</p></div>
       <div class="slab"><h4>6. <code>void freeList()</code></h4><p class="mini">Free every node. The trap: once you <code>free(temp)</code> you cannot read <code>temp-&gt;next</code>. Save the next address <em>before</em> you free.</p></div>
     </div>
 
@@ -2922,6 +2986,32 @@ renderMCQ($('#chooseQuiz'),[
     ins.forEach(i=>{ i.classList.add('good'); i.classList.remove('bad'); });
     say(out,`${Y('Revealed.')} Now reset it and type it from memory — that is the part that sticks.`);
   };
+})();
+
+/* ============================================================ LAB 12B — insert in the middle */
+(function(){
+  const root=$('[data-order-game="midOrder"]'); if(!root) return;
+  const dnd=initDnD(root), stage=$('#midStage'), out=$('#midOut'),
+        L=[32,43,56,76], ti=1; // temp stands on L[ti]
+  const base=()=>L.map((v,i)=>({v,tags:i===0?['head']:(i===ti?['temp']:[])}));
+  const start=()=>chain(base())+floatRow([{v:50,tags:['newNode']}],'newNode — allocated, temp is standing on 43');
+  stage.innerHTML=start();
+  $('#midRun').onclick=()=>{
+    const o=dnd.order();
+    if(o.includes(null)){ say(out,`${Y('Place both statements in the slots first.')}`); return; }
+    dnd.mark(['a','b']);
+    if(o[0]==='a'){
+      const nodes=base(); nodes.splice(ti+1,0,{v:50,tags:['newNode'],cls:'fresh'});
+      stage.innerHTML=chain(nodes);
+      say(out,`${G('Correct.')}\n\n${K('newNode->next = temp->next;')}  the new node now points at 56. Nothing is lost — temp is still holding 56 too, for one line.\n${K('temp->next = newNode;')}      temp now points at 50 instead.\n\nFinal list: ${G('32 -> 43 -> 50 -> 56 -> 76 -> NULL')}`);
+    } else {
+      stage.innerHTML=chain([{v:32,tags:['head']},{v:43,tags:['temp']},{v:50,tags:['newNode'],cls:'doomed'}],{endNull:false})
+        +'<div class="leakbadge">newNode-&gt;next now points back at newNode — an infinite loop</div>'
+        +floatRow([{v:56,tags:[],cls:'lost'},{v:76,tags:[],cls:'lost'}],'Unreachable. Still allocated, nothing points here.');
+      say(out,`${R('This destroys the tail of the list.')}\n\n${K('temp->next = newNode;')}  temp jumps to 50. ${R('The address of 56 is now gone forever')} — nothing anywhere holds it, and 76 goes with it.\n${K('newNode->next = temp->next;')}  temp->next IS newNode now, so the node points at ${R('itself')}.\n\nResult: a one-node loop at 50, plus two leaked nodes you can never reach or free.`);
+    }
+  };
+  $('#midReset').onclick=()=>{ dnd.reset(); stage.innerHTML=start(); say(out,'Place both statements, then press Run.'); };
 })();
 
 /* ============================================================ LAB 13 — delete first */
